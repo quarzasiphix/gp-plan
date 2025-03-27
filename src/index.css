@@ -73,7 +73,18 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans overflow-hidden;
+  }
+  
+  /* Improve touch targets for mobile */
+  @media (max-width: 768px) {
+    button, a, input[type="submit"] {
+      @apply min-h-9 min-w-9;
+    }
+    
+    input, select, textarea {
+      @apply text-base;
+    }
   }
 }
 
@@ -93,20 +104,20 @@
   }
   
   .list-card {
-    @apply glass-panel p-4 transition-all duration-300 hover:shadow-xl cursor-pointer;
+    @apply glass-panel p-3 md:p-4 transition-all duration-300 hover:shadow-xl cursor-pointer;
   }
   
   .route-date-chip {
-    @apply bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium;
+    @apply bg-primary/10 text-primary px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs font-medium;
   }
   
   .route-chip {
-    @apply bg-accent text-accent-foreground px-3 py-1 rounded-full text-xs font-medium
+    @apply bg-accent text-accent-foreground px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs font-medium
     transition-all duration-200 hover:bg-accent/80;
   }
   
   .search-input {
-    @apply glass-panel w-full px-4 py-3 pr-10 text-sm transition-all duration-300
+    @apply glass-panel w-full px-3 py-2 md:px-4 md:py-3 pr-10 text-sm transition-all duration-300
     focus:ring-2 focus:ring-primary/50 focus:outline-none;
   }
 }
@@ -162,4 +173,20 @@
   opacity: 0;
   transform: scale(0.98);
   transition: opacity 300ms, transform 300ms;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .glass-panel {
+    @apply rounded-xl shadow-md;
+  }
+  
+  .route-line {
+    @apply stroke-[3];
+  }
+  
+  .map-pin-drop {
+    transform-origin: bottom center;
+    scale: 0.8;
+  }
 }

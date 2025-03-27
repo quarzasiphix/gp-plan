@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { MapPin, Search } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Mock implementation - will be replaced with actual Google Maps implementation
 const Map = ({
@@ -12,6 +13,7 @@ const Map = ({
 }) => {
   const mapRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const isMobile = useIsMobile();
   
   // In a real implementation, we would use the Google Maps API
   // This is just a placeholder visualization
@@ -90,23 +92,23 @@ const Map = ({
   };
 
   return (
-    <div className={`relative h-full ${className}`}>
+    <div className={`relative ${isMobile ? 'h-[70vh]' : 'h-full'} ${className}`}>
       {interactive && (
         <form 
           onSubmit={handleSearch} 
-          className="absolute top-4 left-0 right-0 mx-auto w-[90%] max-w-md z-10"
+          className="absolute top-2 left-0 right-0 mx-auto w-[95%] max-w-md z-10"
         >
           <div className="relative">
             <input
               type="text"
               placeholder="Search for an address..."
-              className="search-input pr-10"
+              className="search-input w-full pr-10 py-2.5 text-sm rounded-xl"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button 
               type="submit" 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground"
             >
               <Search className="h-4 w-4" />
             </button>
@@ -116,7 +118,7 @@ const Map = ({
       
       <div 
         ref={mapRef} 
-        className="map-container bg-accent h-full"
+        className="map-container bg-accent h-full rounded-lg overflow-hidden"
         onClick={handleMapClick}
       >
         {/* This is a placeholder for the actual map */}
