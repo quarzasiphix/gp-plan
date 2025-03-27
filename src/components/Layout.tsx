@@ -19,12 +19,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-background to-accent/20">
       <header className={`glass-panel ${isMobile ? 'm-2 mb-0 p-2' : 'm-4 mb-0 p-4'} flex justify-between items-center`}>
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+        <Link to="/" className="flex items-center space-x-2 group transition-all duration-300">
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center group-hover:scale-105 transition-all">
             <MapPin className="text-white h-4 w-4" />
           </div>
-          <h1 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold`}>PetWay</h1>
-        </div>
+          <h1 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold group-hover:text-primary transition-colors`}>PetWay</h1>
+        </Link>
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-4">
