@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Home, MapPin, Calendar, Plus, Menu } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -17,7 +17,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background to-accent/20">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-background to-accent/20">
       <header className={`glass-panel ${isMobile ? 'm-2 mb-0 p-2' : 'm-4 mb-0 p-4'} flex justify-between items-center`}>
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
@@ -72,10 +72,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </header>
       
-      <main className={`flex-grow ${isMobile ? 'p-2' : 'p-4'} overflow-auto`}>
-        <div className="animate-fade-in">
-          {children}
-        </div>
+      <main className={`flex-grow ${isMobile ? 'p-2' : 'p-4'} overflow-y-auto`}>
+        {children}
       </main>
       
       <nav className="md:hidden glass-panel m-2 mt-0 p-1 grid grid-cols-4 gap-1 rounded-xl">

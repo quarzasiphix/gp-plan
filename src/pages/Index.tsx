@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Calendar, Plus, ArrowRight } from 'lucide-react';
@@ -5,6 +6,7 @@ import Layout from '@/components/Layout';
 import Map from '@/components/Map';
 import { useRoutes } from '@/hooks/useRoutes';
 import RouteCard from '@/components/RouteCard';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const Index = () => {
   const { groupedRoutes, loading, error, deleteRoute } = useRoutes();
@@ -35,7 +37,7 @@ const Index = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <div className="glass-panel p-6 h-[400px] mb-6">
+          <div className="glass-panel p-6 h-[300px] md:h-[400px] mb-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Route Overview</h2>
             </div>
