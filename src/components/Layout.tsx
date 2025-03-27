@@ -76,21 +76,24 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </main>
       
-      <nav className="md:hidden glass-panel m-2 mt-0 p-1 grid grid-cols-4 gap-1 rounded-xl">
-        {navItems.map((item, index) => (
-          <Link
-            key={index}
-            to={item.path}
-            className={`flex flex-col items-center justify-center ${isMobile ? 'p-1.5' : 'p-2'} rounded-lg transition-all duration-300
-              ${location.pathname === item.path 
-                ? 'bg-primary text-primary-foreground' 
-                : 'hover:bg-accent/80'}`}
-          >
-            <item.icon className="h-4 w-4" />
-            <span className="text-[10px] mt-0.5">{item.text}</span>
-          </Link>
-        ))}
-      </nav>
+      {/* Updated Mobile Bottom Navigation */}
+      <div className="md:hidden sticky bottom-0 left-0 right-0 z-10">
+        <nav className="glass-panel m-2 mt-0 p-1 grid grid-cols-4 gap-1 rounded-xl">
+          {navItems.map((item, index) => (
+            <Link
+              key={index}
+              to={item.path}
+              className={`flex flex-col items-center justify-center ${isMobile ? 'p-1.5' : 'p-2'} rounded-lg transition-all duration-300
+                ${location.pathname === item.path 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'hover:bg-accent/80'}`}
+            >
+              <item.icon className="h-4 w-4" />
+              <span className="text-[10px] mt-0.5">{item.text}</span>
+            </Link>
+          ))}
+        </nav>
+      </div>
     </div>
   );
 };
