@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Home, MapPin, Calendar, Plus } from 'lucide-react';
+import { Home, MapPin, Calendar, Plus, Menu } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -24,6 +25,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
           <h1 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold`}>PetWay</h1>
         </div>
+        
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-4">
           {navItems.map((item, index) => (
             <Link
@@ -39,6 +42,34 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </Link>
           ))}
         </nav>
+        
+        {/* Mobile Burger Menu */}
+        <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="p-2 rounded-lg hover:bg-accent/50">
+                <Menu className="h-5 w-5" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="glass-panel w-64 p-4">
+              <div className="mt-8 flex flex-col space-y-2">
+                {navItems.map((item, index) => (
+                  <Link
+                    key={index}
+                    to={item.path}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300
+                      ${location.pathname === item.path 
+                        ? 'bg-primary text-primary-foreground font-medium' 
+                        : 'hover:bg-accent/80'}`}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span className="text-base">{item.text}</span>
+                  </Link>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </header>
       
       <main className={`flex-grow ${isMobile ? 'p-2' : 'p-4'} overflow-auto`}>
