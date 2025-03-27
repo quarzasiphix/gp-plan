@@ -36,7 +36,9 @@ const Map = ({
     document.body.appendChild(script);
     
     return () => {
-      document.body.removeChild(script);
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
     };
   }, []);
 
@@ -45,23 +47,46 @@ const Map = ({
     console.log('Searching for location:', searchTerm);
     // In a real implementation:
     // Use the Google Geocoding API to search for the location
-    // Then call onLocationSelect with the result
-  };
-
-  const handleMapClick = (e) => {
-    if (!interactive) return;
     
-    // Mock implementation - in reality we'd get lat/lng from the click event
-    console.log('Map clicked');
-    if (onLocationSelect) {
-      // Mock location data
+    // For now, let's mock a search result
+    if (searchTerm && onLocationSelect) {
+      // Generate a mock location based on the search term
       const mockLocation = {
-        address: '123 Example Street, City, Country',
-        lat: 52.2297,
-        lng: 21.0122,
+        address: `${searchTerm}, City, Country`,
+        lat: 52.2297 + (Math.random() - 0.5) * 10, // Random latitude near Warsaw
+        lng: 21.0122 + (Math.random() - 0.5) * 10, // Random longitude near Warsaw
       };
       onLocationSelect(mockLocation);
     }
+  };
+
+  const handleMapClick = (e) => {
+    if (!interactive || !onLocationSelect) return;
+    
+    // Mock implementation - in reality we'd get lat/lng from the click event
+    console.log('Map clicked');
+    
+    // Generate random coordinates for demonstration purposes
+    const lat = 52.2297 + (Math.random() - 0.5) * 10; // Random latitude near Warsaw
+    const lng = 21.0122 + (Math.random() - 0.5) * 10; // Random longitude near Warsaw
+    
+    // Create mock location names based on coordinates
+    const mockCities = [
+      "Warsaw", "Berlin", "Paris", "Madrid", "Rome", "Vienna", 
+      "Prague", "Budapest", "Amsterdam", "Brussels", "Copenhagen"
+    ];
+    const mockCountries = ["Poland", "Germany", "France", "Spain", "Italy", "Austria"];
+    
+    const randomCity = mockCities[Math.floor(Math.random() * mockCities.length)];
+    const randomCountry = mockCountries[Math.floor(Math.random() * mockCountries.length)];
+    
+    const mockLocation = {
+      address: `${randomCity}, ${randomCountry}`,
+      lat: lat,
+      lng: lng,
+    };
+    
+    onLocationSelect(mockLocation);
   };
 
   return (
