@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MapPin, Plus, ChevronRight, ArrowLeft, Trash } from 'lucide-react';
 import Map from './Map';
@@ -38,7 +37,6 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }) => {
   const addStop = () => {
     if (!currentLocation) return;
     
-    // If we're on step 1 (starting point), set it as first stop
     if (currentStep === 1) {
       setRouteData({
         ...routeData,
@@ -46,14 +44,12 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }) => {
       });
       setCurrentStep(2);
     } 
-    // If we're on step 2 (adding stops), add to existing stops
     else if (currentStep === 2) {
       setRouteData({
         ...routeData,
         stops: [...routeData.stops, currentLocation],
       });
     }
-    // If we're on step 3 (return journey), add to return stops
     else if (currentStep === 3 && routeData.returnJourney) {
       setRouteData({
         ...routeData,
@@ -77,7 +73,6 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }) => {
   };
   
   const handleContinue = () => {
-    // Validate current step
     if (currentStep === 0) {
       if (!routeData.name || !routeData.startDate) return;
     }
@@ -90,7 +85,6 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }) => {
       return;
     }
     
-    // Move to next step or save if on last step
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -107,7 +101,6 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }) => {
   };
   
   const handleSave = () => {
-    // Calculate durations and distances (mock implementation)
     const mockDuration = '12h 30m';
     const mockDistance = '950 km';
     
@@ -342,6 +335,7 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }) => {
                   markers={routeData.stops}
                   route={routeData.stops}
                   interactive={false}
+                  onLocationSelect={() => {}}
                 />
               </div>
             </div>
@@ -429,7 +423,6 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }) => {
           </h2>
         </div>
         
-        {/* Progress indicator */}
         <div className="grid grid-cols-5 gap-2 mt-3">
           {steps.map((step, index) => (
             <div 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Calendar, Plus, ArrowRight } from 'lucide-react';
@@ -42,7 +41,8 @@ const Index = () => {
             </div>
             <Map 
               markers={groupedRoutes.flatMap(group => group.routes.flatMap(route => route.stops))}
-              interactive={false}
+              interactive={false} 
+              onLocationSelect={() => {}} // Add empty handler to satisfy the prop requirement
             />
           </div>
           

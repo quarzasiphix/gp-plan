@@ -1,9 +1,9 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useRoutes } from '@/hooks/useRoutes';
+import { Link } from 'react-router-dom';
 
 const Calendar = () => {
   const { groupedRoutes, loading, error } = useRoutes();
@@ -26,16 +26,13 @@ const Calendar = () => {
     setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
   
-  // Generate dates for the current month view
   const getDaysInMonth = () => {
     const daysInMonth = eachDayOfInterval({ start: startDate, end: endDate });
     
-    // Calculate days from previous month to fill first week
     const firstDayOfMonth = getDay(monthStart);
     
     const allDays = [];
     
-    // Add previous month days
     const prevMonthDays = [];
     for (let i = 0; i < firstDayOfMonth; i++) {
       const prevDate = new Date(monthStart);
@@ -49,7 +46,6 @@ const Calendar = () => {
     
     allDays.push(...prevMonthDays);
     
-    // Add current month days
     const currentMonthDays = daysInMonth.map(date => ({
       date,
       isCurrentMonth: true,
@@ -58,7 +54,6 @@ const Calendar = () => {
     
     allDays.push(...currentMonthDays);
     
-    // Add next month days to complete grid
     const totalCells = Math.ceil(allDays.length / 7) * 7;
     const nextMonthDays = [];
     for (let i = allDays.length; i < totalCells; i++) {
@@ -73,7 +68,6 @@ const Calendar = () => {
     
     allDays.push(...nextMonthDays);
     
-    // Group days into weeks
     const weeks = [];
     for (let i = 0; i < allDays.length; i += 7) {
       weeks.push(allDays.slice(i, i + 7));
@@ -82,7 +76,6 @@ const Calendar = () => {
     return weeks;
   };
   
-  // Find routes that fall on a given date
   const getRoutesForDate = (date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const group = groupedRoutes.find(group => group.date === dateStr);
