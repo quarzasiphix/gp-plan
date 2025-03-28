@@ -6,12 +6,12 @@ const API_BASE_URL = 'https://gp.quarza.online/api/routes.php';
 const formatRouteData = (route) => {
   // Extract return journey stops if needed
   const returnStops = route.stops
-    ? route.stops.filter(stop => stop.is_return_journey).sort((a, b) => a.stop_order - b.stop_order)
+    ? route.stops.filter(stop => stop.is_return_journey === 1).sort((a, b) => a.stop_order - b.stop_order)
     : [];
   
   // Extract regular stops
   const regularStops = route.stops 
-    ? route.stops.filter(stop => !stop.is_return_journey).sort((a, b) => a.stop_order - b.stop_order)
+    ? route.stops.filter(stop => stop.is_return_journey === 0).sort((a, b) => a.stop_order - b.stop_order)
     : [];
   
   return {
@@ -20,16 +20,16 @@ const formatRouteData = (route) => {
     startDate: route.start_date,
     duration: route.duration || '',
     distance: route.distance || '',
-    returnJourney: route.return_journey === "1" || route.return_journey === true || route.return_journey === 1,
+    returnJourney: route.return_journey === 1 || route.return_journey === "1" || route.return_journey === true,
     stops: regularStops.map(stop => ({
       address: stop.address,
-      lat: stop.lat,
-      lng: stop.lng
+      lat: parseFloat(stop.lat),
+      lng: parseFloat(stop.lng)
     })),
     returnStops: returnStops.map(stop => ({
       address: stop.address,
-      lat: stop.lat,
-      lng: stop.lng
+      lat: parseFloat(stop.lat),
+      lng: parseFloat(stop.lng)
     }))
   };
 };
@@ -43,24 +43,24 @@ const formatDataForApi = (routeData) => {
       lat: stop.lat,
       lng: stop.lng,
       stop_order: index + 1,
-      is_return_journey: false
+      is_return_journey: 0
     })),
     ...(routeData.returnJourney ? routeData.returnStops.map((stop, index) => ({
       address: stop.address,
       lat: stop.lat,
       lng: stop.lng,
       stop_order: index + 1,
-      is_return_journey: true
+      is_return_journey: 1
     })) : [])
   ];
 
-  // Convert returnJourney to boolean for API
+  // PHP API expects return_journey as an integer (0 or 1)
   return {
     name: routeData.name,
     start_date: routeData.startDate,
     duration: routeData.duration,
     distance: routeData.distance,
-    return_journey: routeData.returnJourney === true || routeData.returnJourney === "1" || routeData.returnJourney === 1,
+    return_journey: routeData.returnJourney ? 1 : 0,
     stops: allStops
   };
 };
@@ -125,7 +125,20 @@ export const routeApi = {
       
       const data = await response.json();
       console.log('API Response Data:', data);
-      return data.map(formatRouteData);
+      
+      // Check if the response is an array (expected)
+      if (!Array.isArray(data)) {
+        console.error('Unexpected API response format:', data);
+        if (data.error) {
+          throw new Error(`API Error: ${data.error}`);
+        }
+        throw new Error('Unexpected API response format');
+      }
+      
+      return data.map(route => {
+        // Since the route may not have stops when getting all routes
+        return formatRouteData({...route, stops: []});
+      });
     } catch (error) {
       console.error('Error fetching routes:', error);
       throw error;
@@ -145,6 +158,11 @@ export const routeApi = {
       });
       
       const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(`API Error: ${data.error}`);
+      }
+      
       return formatRouteData(data);
     } catch (error) {
       console.error(`Error fetching route ${id}:`, error);
@@ -169,7 +187,17 @@ export const routeApi = {
       });
       
       const data = await response.json();
-      return formatRouteData(data);
+      
+      if (data.error) {
+        throw new Error(`API Error: ${data.error}`);
+      }
+      
+      // If we just get an ID back, fetch the complete route
+      if (data.id) {
+        return await routeApi.getRoute(data.id);
+      }
+      
+      return data;
     } catch (error) {
       console.error('Error creating route:', error);
       throw error;
@@ -192,6 +220,11 @@ export const routeApi = {
       });
       
       const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(`API Error: ${data.error}`);
+      }
+      
       return formatRouteData(data);
     } catch (error) {
       console.error(`Error updating route ${id}:`, error);
@@ -211,7 +244,13 @@ export const routeApi = {
         },
       });
       
-      return { success: true };
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(`API Error: ${data.error}`);
+      }
+      
+      return data;
     } catch (error) {
       console.error(`Error deleting route ${id}:`, error);
       throw error;
