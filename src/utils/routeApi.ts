@@ -1,3 +1,4 @@
+
 // Real API service for routes
 const API_BASE_URL = 'https://gp.quarza.online/api/routes.php';
 
@@ -63,13 +64,55 @@ const formatDataForApi = (routeData) => {
   };
 };
 
+// Use a CORS proxy if needed
+const fetchWithCORS = async (url, options = {}) => {
+  // Try direct first
+  try {
+    console.log(`Attempting direct fetch to: ${url}`);
+    const response = await fetch(url, options);
+    if (response.ok) return response;
+    
+    // If direct fetch failed with CORS error, throw to try proxy
+    throw new Error('Direct fetch failed');
+  } catch (directError) {
+    console.log('Direct fetch failed, trying with CORS proxy');
+    
+    // Try with CORS proxy
+    try {
+      // Use a CORS proxy
+      const corsProxyUrl = 'https://cors-anywhere.herokuapp.com/';
+      const proxyUrl = `${corsProxyUrl}${url}`;
+      
+      console.log(`Trying with CORS proxy: ${proxyUrl}`);
+      
+      const proxyResponse = await fetch(proxyUrl, {
+        ...options,
+        headers: {
+          ...options.headers,
+          'Origin': window.location.origin
+        }
+      });
+      
+      if (!proxyResponse.ok) {
+        const errorText = await proxyResponse.text();
+        throw new Error(`Proxy API error: ${proxyResponse.status} - ${errorText || 'No error details provided'}`);
+      }
+      
+      return proxyResponse;
+    } catch (proxyError) {
+      console.error('Both direct and proxy fetch attempts failed:', proxyError);
+      throw new Error(`CORS Error: Unable to connect to the API. Please ensure you have CORS permissions or use a proxy. Details: ${proxyError.message}`);
+    }
+  }
+};
+
 // API service with improved error handling
 export const routeApi = {
   // Get all routes
   getRoutes: async () => {
     try {
       console.log('Fetching routes from:', API_BASE_URL);
-      const response = await fetch(`${API_BASE_URL}`, {
+      const response = await fetchWithCORS(`${API_BASE_URL}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -78,12 +121,6 @@ export const routeApi = {
       });
       
       console.log('API Response Status:', response.status);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error Response:', errorText);
-        throw new Error(`API error: ${response.status} - ${errorText || 'No error details provided'}`);
-      }
       
       const data = await response.json();
       console.log('API Response Data:', data);
@@ -98,19 +135,13 @@ export const routeApi = {
   getRoute: async (id) => {
     try {
       console.log(`Fetching route ${id} from: ${API_BASE_URL}/${id}`);
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
+      const response = await fetchWithCORS(`${API_BASE_URL}/${id}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
       });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error Response:', errorText);
-        throw new Error(`API error: ${response.status} - ${errorText || 'No error details provided'}`);
-      }
       
       const data = await response.json();
       return formatRouteData(data);
@@ -127,7 +158,7 @@ export const routeApi = {
       console.log('Creating route with data:', formattedData);
       console.log('POST URL:', API_BASE_URL);
       
-      const response = await fetch(`${API_BASE_URL}`, {
+      const response = await fetchWithCORS(`${API_BASE_URL}`, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -135,12 +166,6 @@ export const routeApi = {
         },
         body: JSON.stringify(formattedData),
       });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error Response:', errorText);
-        throw new Error(`API error: ${response.status} - ${errorText || 'No error details provided'}`);
-      }
       
       const data = await response.json();
       return formatRouteData(data);
@@ -156,7 +181,7 @@ export const routeApi = {
       const formattedData = formatDataForApi(routeData);
       console.log(`Updating route ${id} with data:`, formattedData);
       
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
+      const response = await fetchWithCORS(`${API_BASE_URL}/${id}`, {
         method: 'PUT',
         headers: {
           'Accept': 'application/json',
@@ -164,12 +189,6 @@ export const routeApi = {
         },
         body: JSON.stringify(formattedData),
       });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error Response:', errorText);
-        throw new Error(`API error: ${response.status} - ${errorText || 'No error details provided'}`);
-      }
       
       const data = await response.json();
       return formatRouteData(data);
@@ -183,19 +202,13 @@ export const routeApi = {
   deleteRoute: async (id) => {
     try {
       console.log(`Deleting route ${id}`);
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
+      const response = await fetchWithCORS(`${API_BASE_URL}/${id}`, {
         method: 'DELETE',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
       });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error Response:', errorText);
-        throw new Error(`API error: ${response.status} - ${errorText || 'No error details provided'}`);
-      }
       
       return { success: true };
     } catch (error) {

@@ -22,11 +22,21 @@ export const useRoutes = () => {
       console.error('Error loading routes:', err);
       const errorMessage = err.message || 'Failed to load routes';
       setError(errorMessage);
-      toast({
-        title: 'API Connection Error',
-        description: `${errorMessage}. Please check your network connection and API settings.`,
-        variant: 'destructive',
-      });
+      
+      // Check if it's a CORS error
+      if (errorMessage.includes('CORS')) {
+        toast({
+          title: 'CORS Error',
+          description: `Unable to connect to the API due to CORS restrictions. The application might need to use a proxy or have CORS enabled on the server.`,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'API Connection Error',
+          description: `${errorMessage}. Please check your network connection and API settings.`,
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -45,11 +55,6 @@ export const useRoutes = () => {
       console.error('Error loading grouped routes:', err);
       const errorMessage = err.message || 'Failed to load routes';
       setError(errorMessage);
-      toast({
-        title: 'API Connection Error',
-        description: `${errorMessage}. Please check your network connection and API settings.`,
-        variant: 'destructive',
-      });
     } finally {
       setLoading(false);
     }
