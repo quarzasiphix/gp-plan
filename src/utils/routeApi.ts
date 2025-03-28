@@ -65,7 +65,7 @@ const formatDataForApi = (routeData) => {
 };
 
 // Use a CORS proxy if needed
-const fetchWithCORS = async (url, options = {}) => {
+const fetchWithCORS = async (url: string, options: RequestInit = {}) => {
   // Try direct first
   try {
     console.log(`Attempting direct fetch to: ${url}`);
