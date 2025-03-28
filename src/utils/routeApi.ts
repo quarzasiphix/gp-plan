@@ -20,7 +20,7 @@ const formatRouteData = (route) => {
     startDate: route.start_date,
     duration: route.duration || '',
     distance: route.distance || '',
-    returnJourney: route.return_journey,
+    returnJourney: route.return_journey === "1" || route.return_journey === true || route.return_journey === 1,
     stops: regularStops.map(stop => ({
       address: stop.address,
       lat: stop.lat,
@@ -54,12 +54,13 @@ const formatDataForApi = (routeData) => {
     })) : [])
   ];
 
+  // Convert returnJourney to boolean for API
   return {
     name: routeData.name,
     start_date: routeData.startDate,
     duration: routeData.duration,
     distance: routeData.distance,
-    return_journey: routeData.returnJourney,
+    return_journey: routeData.returnJourney === true || routeData.returnJourney === "1" || routeData.returnJourney === 1,
     stops: allStops
   };
 };
