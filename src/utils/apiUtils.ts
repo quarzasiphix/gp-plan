@@ -2,7 +2,7 @@
 // API Utilities for handling requests and CORS
 const API_BASE_URL = 'https://gp.quarza.online/api/routes.php';
 
-// Use a CORS proxy if needed
+// Enhanced CORS proxy with better error handling and alternative proxies
 export const fetchWithCORS = async (url: string, options: RequestInit = {}) => {
   // Try direct first
   try {
@@ -15,39 +15,55 @@ export const fetchWithCORS = async (url: string, options: RequestInit = {}) => {
   } catch (directError) {
     console.log('Direct fetch failed, trying with CORS proxy');
     
-    // Try with CORS proxy
-    try {
-      // Use a CORS proxy
-      const corsProxyUrl = 'https://cors-anywhere.herokuapp.com/';
-      const proxyUrl = `${corsProxyUrl}${url}`;
-      
-      console.log(`Trying with CORS proxy: ${proxyUrl}`);
-      
-      const proxyResponse = await fetch(proxyUrl, {
-        ...options,
-        headers: {
-          ...options.headers,
-          'Origin': window.location.origin
+    // Try with multiple CORS proxies in sequence
+    const corsProxies = [
+      'https://corsproxy.io/?',
+      'https://cors-anywhere.herokuapp.com/'
+    ];
+    
+    let lastError = directError;
+    
+    // Try each proxy in sequence
+    for (const proxyUrl of corsProxies) {
+      try {
+        const fullProxyUrl = `${proxyUrl}${url}`;
+        console.log(`Trying with CORS proxy: ${fullProxyUrl}`);
+        
+        const proxyResponse = await fetch(fullProxyUrl, {
+          ...options,
+          headers: {
+            ...options.headers,
+            'Origin': window.location.origin
+          }
+        });
+        
+        if (!proxyResponse.ok) {
+          const errorText = await proxyResponse.text();
+          console.error(`Proxy error (${proxyUrl}):`, errorText);
+          throw new Error(`Proxy API error: ${proxyResponse.status} - ${errorText || 'No error details provided'}`);
         }
-      });
-      
-      if (!proxyResponse.ok) {
-        const errorText = await proxyResponse.text();
-        throw new Error(`Proxy API error: ${proxyResponse.status} - ${errorText || 'No error details provided'}`);
+        
+        return proxyResponse;
+      } catch (proxyError) {
+        console.error(`Failed with proxy ${proxyUrl}:`, proxyError);
+        lastError = proxyError;
+        // Continue to the next proxy
       }
-      
-      return proxyResponse;
-    } catch (proxyError) {
-      console.error('Both direct and proxy fetch attempts failed:', proxyError);
-      throw new Error(`CORS Error: Unable to connect to the API. Please ensure you have CORS permissions or use a proxy. Details: ${proxyError.message}`);
     }
+    
+    // If we get here, all proxies failed
+    console.error('All fetch attempts failed:', lastError);
+    throw new Error(`CORS Error: Unable to connect to the API. Please ensure you have CORS permissions or use a proxy. Details: ${lastError.message}`);
   }
 };
 
 // Get the full API URL for a specific endpoint
 export const getApiUrl = (endpoint?: string | number) => {
+  // The base URL already includes 'routes.php'
   if (!endpoint) {
     return API_BASE_URL;
   }
+  
+  // Based on the PHP code, the URL structure should be /routes/{id}
   return `${API_BASE_URL}/${endpoint}`;
 };
