@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { routeApi } from '../utils/routeApi';
 import { toast } from '@/components/ui/use-toast';
@@ -21,7 +20,7 @@ export const useRoutes = () => {
       setError(err.message || 'Failed to load routes');
       toast({
         title: 'Error',
-        description: 'Failed to load routes. Please try again.',
+        description: 'Failed to load routes. Please check API connection.',
         variant: 'destructive',
       });
     } finally {
@@ -41,7 +40,7 @@ export const useRoutes = () => {
       setError(err.message || 'Failed to load routes');
       toast({
         title: 'Error',
-        description: 'Failed to load routes. Please try again.',
+        description: 'Failed to load grouped routes. Please check API connection.',
         variant: 'destructive',
       });
     } finally {

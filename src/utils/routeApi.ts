@@ -1,6 +1,6 @@
 
 // Real API service for routes
-const API_BASE_URL = 'https://gp.quarza.online/api/routes';
+const API_BASE_URL = 'https://gp.quarza.online/api/routes.php';
 
 // Helper to format routes data for frontend use
 const formatRouteData = (route) => {
