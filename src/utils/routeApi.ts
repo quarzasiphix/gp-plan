@@ -1,122 +1,15 @@
 
-// Real API service for routes
-const API_BASE_URL = 'https://gp.quarza.online/api/routes.php';
-
-// Helper to format routes data for frontend use
-const formatRouteData = (route) => {
-  // Make sure the stops array exists
-  const stopsArray = Array.isArray(route.stops) ? route.stops : [];
-  
-  // Extract return journey stops if needed
-  const returnStops = stopsArray
-    .filter(stop => stop.is_return_journey === 1)
-    .sort((a, b) => a.stop_order - b.stop_order);
-  
-  // Extract regular stops
-  const regularStops = stopsArray
-    .filter(stop => stop.is_return_journey === 0)
-    .sort((a, b) => a.stop_order - b.stop_order);
-  
-  return {
-    id: route.id,
-    name: route.name,
-    startDate: route.start_date,
-    duration: route.duration || '',
-    distance: route.distance || '',
-    returnJourney: route.return_journey === 1 || route.return_journey === "1" || route.return_journey === true,
-    stops: regularStops.map(stop => ({
-      address: stop.address,
-      lat: parseFloat(stop.lat),
-      lng: parseFloat(stop.lng)
-    })),
-    returnStops: returnStops.map(stop => ({
-      address: stop.address,
-      lat: parseFloat(stop.lat),
-      lng: parseFloat(stop.lng)
-    }))
-  };
-};
-
-// Format data for API submission
-const formatDataForApi = (routeData) => {
-  // Combine regular and return stops with proper flags
-  const allStops = [
-    ...routeData.stops.map((stop, index) => ({
-      address: stop.address,
-      lat: stop.lat,
-      lng: stop.lng,
-      stop_order: index + 1,
-      is_return_journey: 0
-    })),
-    ...(routeData.returnJourney ? routeData.returnStops.map((stop, index) => ({
-      address: stop.address,
-      lat: stop.lat,
-      lng: stop.lng,
-      stop_order: index + 1,
-      is_return_journey: 1
-    })) : [])
-  ];
-
-  // PHP API expects return_journey as an integer (0 or 1)
-  return {
-    name: routeData.name,
-    start_date: routeData.startDate,
-    duration: routeData.duration,
-    distance: routeData.distance,
-    return_journey: routeData.returnJourney ? 1 : 0,
-    stops: allStops
-  };
-};
-
-// Use a CORS proxy if needed
-const fetchWithCORS = async (url: string, options: RequestInit = {}) => {
-  // Try direct first
-  try {
-    console.log(`Attempting direct fetch to: ${url}`);
-    const response = await fetch(url, options);
-    if (response.ok) return response;
-    
-    // If direct fetch failed with CORS error, throw to try proxy
-    throw new Error('Direct fetch failed');
-  } catch (directError) {
-    console.log('Direct fetch failed, trying with CORS proxy');
-    
-    // Try with CORS proxy
-    try {
-      // Use a CORS proxy
-      const corsProxyUrl = 'https://cors-anywhere.herokuapp.com/';
-      const proxyUrl = `${corsProxyUrl}${url}`;
-      
-      console.log(`Trying with CORS proxy: ${proxyUrl}`);
-      
-      const proxyResponse = await fetch(proxyUrl, {
-        ...options,
-        headers: {
-          ...options.headers,
-          'Origin': window.location.origin
-        }
-      });
-      
-      if (!proxyResponse.ok) {
-        const errorText = await proxyResponse.text();
-        throw new Error(`Proxy API error: ${proxyResponse.status} - ${errorText || 'No error details provided'}`);
-      }
-      
-      return proxyResponse;
-    } catch (proxyError) {
-      console.error('Both direct and proxy fetch attempts failed:', proxyError);
-      throw new Error(`CORS Error: Unable to connect to the API. Please ensure you have CORS permissions or use a proxy. Details: ${proxyError.message}`);
-    }
-  }
-};
+// Route API service
+import { fetchWithCORS, getApiUrl } from './apiUtils';
+import { formatRouteData, formatDataForApi } from './formatters';
 
 // API service with improved error handling
 export const routeApi = {
   // Get all routes
   getRoutes: async () => {
     try {
-      console.log('Fetching routes from:', API_BASE_URL);
-      const response = await fetchWithCORS(`${API_BASE_URL}`, {
+      console.log('Fetching routes from:', getApiUrl());
+      const response = await fetchWithCORS(getApiUrl(), {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -151,8 +44,8 @@ export const routeApi = {
   // Get route by ID
   getRoute: async (id) => {
     try {
-      console.log(`Fetching route ${id} from: ${API_BASE_URL}/${id}`);
-      const response = await fetchWithCORS(`${API_BASE_URL}/${id}`, {
+      console.log(`Fetching route ${id} from: ${getApiUrl(id)}`);
+      const response = await fetchWithCORS(getApiUrl(id), {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -184,9 +77,9 @@ export const routeApi = {
     try {
       const formattedData = formatDataForApi(routeData);
       console.log('Creating route with data:', formattedData);
-      console.log('POST URL:', API_BASE_URL);
+      console.log('POST URL:', getApiUrl());
       
-      const response = await fetchWithCORS(`${API_BASE_URL}`, {
+      const response = await fetchWithCORS(getApiUrl(), {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -220,7 +113,7 @@ export const routeApi = {
       const formattedData = formatDataForApi(routeData);
       console.log(`Updating route ${id} with data:`, formattedData);
       
-      const response = await fetchWithCORS(`${API_BASE_URL}/${id}`, {
+      const response = await fetchWithCORS(getApiUrl(id), {
         method: 'PUT',
         headers: {
           'Accept': 'application/json',
@@ -247,7 +140,7 @@ export const routeApi = {
   deleteRoute: async (id) => {
     try {
       console.log(`Deleting route ${id}`);
-      const response = await fetchWithCORS(`${API_BASE_URL}/${id}`, {
+      const response = await fetchWithCORS(getApiUrl(id), {
         method: 'DELETE',
         headers: {
           'Accept': 'application/json',
