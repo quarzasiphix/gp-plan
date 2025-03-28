@@ -18,7 +18,8 @@ export const fetchWithCORS = async (url: string, options: RequestInit = {}) => {
     // Try with multiple CORS proxies in sequence
     const corsProxies = [
       'https://corsproxy.io/?',
-      'https://cors-anywhere.herokuapp.com/'
+      'https://cors-anywhere.herokuapp.com/',
+      'https://api.allorigins.win/raw?url='
     ];
     
     let lastError = directError;
@@ -26,7 +27,7 @@ export const fetchWithCORS = async (url: string, options: RequestInit = {}) => {
     // Try each proxy in sequence
     for (const proxyUrl of corsProxies) {
       try {
-        const fullProxyUrl = `${proxyUrl}${url}`;
+        const fullProxyUrl = `${proxyUrl}${encodeURIComponent(url)}`;
         console.log(`Trying with CORS proxy: ${fullProxyUrl}`);
         
         const proxyResponse = await fetch(fullProxyUrl, {
@@ -59,11 +60,11 @@ export const fetchWithCORS = async (url: string, options: RequestInit = {}) => {
 
 // Get the full API URL for a specific endpoint
 export const getApiUrl = (endpoint?: string | number) => {
-  // The base URL already includes 'routes.php'
+  // Based on the PHP code structure: /api/routes.php (for list) or /api/routes.php/ID (for single route)
   if (!endpoint) {
     return API_BASE_URL;
   }
   
-  // Based on the PHP code, the URL structure should be /routes/{id}
+  // For specific routes, append the ID
   return `${API_BASE_URL}/${endpoint}`;
 };

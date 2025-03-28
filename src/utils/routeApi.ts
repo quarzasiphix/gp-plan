@@ -1,4 +1,3 @@
-
 // Route API service
 import { fetchWithCORS, getApiUrl } from './apiUtils';
 import { formatRouteData, formatDataForApi } from './formatters';
@@ -44,7 +43,9 @@ export const routeApi = {
   // Get route by ID
   getRoute: async (id) => {
     try {
+      // Important: The API expects /routes/{id}, so we need to make sure the URL is properly formed
       console.log(`Fetching route ${id} from: ${getApiUrl(id)}`);
+      
       const response = await fetchWithCORS(getApiUrl(id), {
         method: 'GET',
         headers: {
