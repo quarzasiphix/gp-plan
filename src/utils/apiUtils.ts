@@ -60,10 +60,12 @@ export const fetchWithCORS = async (url: string, options: RequestInit = {}) => {
 
 // Get the full API URL for a specific endpoint
 export const getApiUrl = (endpoint?: string | number) => {
+  // Based on how the PHP script parses URLs
+  // The script expects "routes/{id}" format after removing "/api/" and ".php"
   if (!endpoint) {
     return API_BASE_URL;
   }
   
-  // The PHP API expects the ID appended directly to the base URL
+  // For route by ID, add the ID as a URL segment
   return `${API_BASE_URL}/${endpoint}`;
 };

@@ -44,6 +44,7 @@ export const routeApi = {
   // Get route by ID
   getRoute: async (id) => {
     try {
+      // The PHP API expects routes.php/{id} format
       console.log(`Fetching route ${id} from: ${getApiUrl(id)}`);
       
       const response = await fetchWithCORS(getApiUrl(id), {
@@ -64,6 +65,12 @@ export const routeApi = {
         data = JSON.parse(responseText);
       } catch (parseError) {
         console.error('Error parsing API response:', parseError);
+        
+        // Check if we're getting HTML instead of JSON (common error)
+        if (responseText.includes('<!DOCTYPE html>') || responseText.includes('<html')) {
+          throw new Error(`API returned HTML instead of JSON. This usually means the API endpoint URL is incorrect or the API is not responding properly.`);
+        }
+        
         throw new Error(`API returned invalid JSON: ${responseText.substring(0, 100)}...`);
       }
       
