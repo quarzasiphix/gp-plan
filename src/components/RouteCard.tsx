@@ -16,8 +16,8 @@ const RouteCard = ({ route, onEdit, onDelete }) => {
   const timeFromNow = formatDistance(new Date(startDate), new Date(), { addSuffix: true });
   
   // Safely get first and last stop addresses
-  const firstStopAddress = stops.length > 0 ? stops[0].address.split(',')[0] : 'Starting point';
-  const lastStopAddress = stops.length > 0 ? stops[stops.length - 1].address.split(',')[0] : 'Destination';
+  const firstStopAddress = stops && stops.length > 0 ? stops[0].address.split(',')[0] : 'Starting point';
+  const lastStopAddress = stops && stops.length > 0 ? stops[stops.length - 1].address.split(',')[0] : 'Destination';
   
   return (
     <div className="list-card group">
@@ -27,7 +27,7 @@ const RouteCard = ({ route, onEdit, onDelete }) => {
           <h3 className="text-lg font-semibold">{name}</h3>
           <div className="flex items-center text-sm text-muted-foreground mt-1">
             <MapPin className="h-3 w-3 mr-1" />
-            <span>{stops.length} stops</span>
+            <span>{stops ? stops.length : 0} stops</span>
             <Clock className="h-3 w-3 ml-3 mr-1" />
             <span>{duration}</span>
           </div>
@@ -58,7 +58,7 @@ const RouteCard = ({ route, onEdit, onDelete }) => {
           <span className="text-xs">Start</span>
         </div>
         
-        {stops.length > 2 && (
+        {stops && stops.length > 2 && (
           <div className="my-2 pl-5 text-muted-foreground">
             + {stops.length - 2} stops in between
           </div>
