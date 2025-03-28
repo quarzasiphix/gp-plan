@@ -1,3 +1,4 @@
+
 // Route API service
 import { fetchWithCORS, getApiUrl } from './apiUtils';
 import { formatRouteData, formatDataForApi } from './formatters';
@@ -43,7 +44,6 @@ export const routeApi = {
   // Get route by ID
   getRoute: async (id) => {
     try {
-      // Important: The API expects /routes/{id}, so we need to make sure the URL is properly formed
       console.log(`Fetching route ${id} from: ${getApiUrl(id)}`);
       
       const response = await fetchWithCORS(getApiUrl(id), {
@@ -54,7 +54,19 @@ export const routeApi = {
         },
       });
       
-      const data = await response.json();
+      console.log('Route API response status:', response.status);
+      const responseText = await response.text();
+      console.log('Raw API response text:', responseText);
+      
+      // Try to parse the response as JSON
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Error parsing API response:', parseError);
+        throw new Error(`API returned invalid JSON: ${responseText.substring(0, 100)}...`);
+      }
+      
       console.log('Single route API response:', data);
       
       if (data.error) {
