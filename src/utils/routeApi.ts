@@ -1,4 +1,3 @@
-
 // Real API service for routes
 const API_BASE_URL = 'https://gp.quarza.online/api/routes.php';
 
@@ -64,16 +63,30 @@ const formatDataForApi = (routeData) => {
   };
 };
 
-// API service
+// API service with improved error handling
 export const routeApi = {
   // Get all routes
   getRoutes: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}`);
+      console.log('Fetching routes from:', API_BASE_URL);
+      const response = await fetch(`${API_BASE_URL}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('API Response Status:', response.status);
+      
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        throw new Error(`API error: ${response.status} - ${errorText || 'No error details provided'}`);
       }
+      
       const data = await response.json();
+      console.log('API Response Data:', data);
       return data.map(formatRouteData);
     } catch (error) {
       console.error('Error fetching routes:', error);
@@ -84,10 +97,21 @@ export const routeApi = {
   // Get route by ID
   getRoute: async (id) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/${id}`);
+      console.log(`Fetching route ${id} from: ${API_BASE_URL}/${id}`);
+      const response = await fetch(`${API_BASE_URL}/${id}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        throw new Error(`API error: ${response.status} - ${errorText || 'No error details provided'}`);
       }
+      
       const data = await response.json();
       return formatRouteData(data);
     } catch (error) {
@@ -100,9 +124,13 @@ export const routeApi = {
   createRoute: async (routeData) => {
     try {
       const formattedData = formatDataForApi(routeData);
+      console.log('Creating route with data:', formattedData);
+      console.log('POST URL:', API_BASE_URL);
+      
       const response = await fetch(`${API_BASE_URL}`, {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formattedData),
@@ -110,7 +138,8 @@ export const routeApi = {
       
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API error: ${response.status} - ${errorText}`);
+        console.error('API Error Response:', errorText);
+        throw new Error(`API error: ${response.status} - ${errorText || 'No error details provided'}`);
       }
       
       const data = await response.json();
@@ -125,9 +154,12 @@ export const routeApi = {
   updateRoute: async (id, routeData) => {
     try {
       const formattedData = formatDataForApi(routeData);
+      console.log(`Updating route ${id} with data:`, formattedData);
+      
       const response = await fetch(`${API_BASE_URL}/${id}`, {
         method: 'PUT',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formattedData),
@@ -135,7 +167,8 @@ export const routeApi = {
       
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API error: ${response.status} - ${errorText}`);
+        console.error('API Error Response:', errorText);
+        throw new Error(`API error: ${response.status} - ${errorText || 'No error details provided'}`);
       }
       
       const data = await response.json();
@@ -149,12 +182,19 @@ export const routeApi = {
   // Delete route
   deleteRoute: async (id) => {
     try {
+      console.log(`Deleting route ${id}`);
       const response = await fetch(`${API_BASE_URL}/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
       });
       
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        throw new Error(`API error: ${response.status} - ${errorText || 'No error details provided'}`);
       }
       
       return { success: true };

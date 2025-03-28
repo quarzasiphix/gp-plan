@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { routeApi } from '../utils/routeApi';
 import { toast } from '@/components/ui/use-toast';
@@ -12,15 +13,18 @@ export const useRoutes = () => {
   const fetchRoutes = async () => {
     try {
       setLoading(true);
+      console.log('Fetching routes...');
       const data = await routeApi.getRoutes();
+      console.log('Routes fetched successfully:', data);
       setRoutes(data);
       setError(null);
     } catch (err) {
       console.error('Error loading routes:', err);
-      setError(err.message || 'Failed to load routes');
+      const errorMessage = err.message || 'Failed to load routes';
+      setError(errorMessage);
       toast({
-        title: 'Error',
-        description: 'Failed to load routes. Please check API connection.',
+        title: 'API Connection Error',
+        description: `${errorMessage}. Please check your network connection and API settings.`,
         variant: 'destructive',
       });
     } finally {
@@ -32,15 +36,18 @@ export const useRoutes = () => {
   const fetchGroupedRoutes = async () => {
     try {
       setLoading(true);
+      console.log('Fetching grouped routes...');
       const data = await routeApi.getRoutesByDate();
+      console.log('Grouped routes fetched successfully:', data);
       setGroupedRoutes(data);
       setError(null);
     } catch (err) {
       console.error('Error loading grouped routes:', err);
-      setError(err.message || 'Failed to load routes');
+      const errorMessage = err.message || 'Failed to load routes';
+      setError(errorMessage);
       toast({
-        title: 'Error',
-        description: 'Failed to load grouped routes. Please check API connection.',
+        title: 'API Connection Error',
+        description: `${errorMessage}. Please check your network connection and API settings.`,
         variant: 'destructive',
       });
     } finally {
