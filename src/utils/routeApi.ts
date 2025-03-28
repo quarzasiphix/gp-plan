@@ -4,15 +4,18 @@ const API_BASE_URL = 'https://gp.quarza.online/api/routes.php';
 
 // Helper to format routes data for frontend use
 const formatRouteData = (route) => {
+  // Make sure the stops array exists
+  const stopsArray = Array.isArray(route.stops) ? route.stops : [];
+  
   // Extract return journey stops if needed
-  const returnStops = route.stops
-    ? route.stops.filter(stop => stop.is_return_journey === 1).sort((a, b) => a.stop_order - b.stop_order)
-    : [];
+  const returnStops = stopsArray
+    .filter(stop => stop.is_return_journey === 1)
+    .sort((a, b) => a.stop_order - b.stop_order);
   
   // Extract regular stops
-  const regularStops = route.stops 
-    ? route.stops.filter(stop => stop.is_return_journey === 0).sort((a, b) => a.stop_order - b.stop_order)
-    : [];
+  const regularStops = stopsArray
+    .filter(stop => stop.is_return_journey === 0)
+    .sort((a, b) => a.stop_order - b.stop_order);
   
   return {
     id: route.id,
@@ -136,7 +139,7 @@ export const routeApi = {
       }
       
       return data.map(route => {
-        // Since the route may not have stops when getting all routes
+        // Routes from the list endpoint don't include stops
         return formatRouteData({...route, stops: []});
       });
     } catch (error) {
@@ -158,9 +161,15 @@ export const routeApi = {
       });
       
       const data = await response.json();
+      console.log('Single route API response:', data);
       
       if (data.error) {
         throw new Error(`API Error: ${data.error}`);
+      }
+      
+      // Ensure stops array exists and process it
+      if (!data.stops) {
+        data.stops = [];
       }
       
       return formatRouteData(data);
@@ -187,6 +196,7 @@ export const routeApi = {
       });
       
       const data = await response.json();
+      console.log('Create route response:', data);
       
       if (data.error) {
         throw new Error(`API Error: ${data.error}`);
@@ -220,6 +230,7 @@ export const routeApi = {
       });
       
       const data = await response.json();
+      console.log('Update route response:', data);
       
       if (data.error) {
         throw new Error(`API Error: ${data.error}`);

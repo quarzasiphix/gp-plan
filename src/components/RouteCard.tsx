@@ -4,7 +4,7 @@ import { MapPin, Calendar, Clock, Edit, Trash } from 'lucide-react';
 import { formatDistance } from 'date-fns';
 
 const RouteCard = ({ route, onEdit, onDelete }) => {
-  const { id, name, startDate, stops, duration, distance } = route;
+  const { id, name, startDate, stops = [], duration, distance } = route;
   
   const formattedDate = new Date(startDate).toLocaleDateString('en-GB', {
     day: 'numeric',
@@ -14,6 +14,10 @@ const RouteCard = ({ route, onEdit, onDelete }) => {
   
   const isUpcoming = new Date(startDate) > new Date();
   const timeFromNow = formatDistance(new Date(startDate), new Date(), { addSuffix: true });
+  
+  // Safely get first and last stop addresses
+  const firstStopAddress = stops.length > 0 ? stops[0].address.split(',')[0] : 'Starting point';
+  const lastStopAddress = stops.length > 0 ? stops[stops.length - 1].address.split(',')[0] : 'Destination';
   
   return (
     <div className="list-card group">
@@ -49,7 +53,7 @@ const RouteCard = ({ route, onEdit, onDelete }) => {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <MapPin className="h-4 w-4 text-primary" />
-            <span className="ml-1 font-medium">{stops[0]?.address.split(',')[0]}</span>
+            <span className="ml-1 font-medium">{firstStopAddress}</span>
           </div>
           <span className="text-xs">Start</span>
         </div>
@@ -63,9 +67,7 @@ const RouteCard = ({ route, onEdit, onDelete }) => {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <MapPin className="h-4 w-4 text-destructive" />
-            <span className="ml-1 font-medium">
-              {stops[stops.length - 1]?.address.split(',')[0]}
-            </span>
+            <span className="ml-1 font-medium">{lastStopAddress}</span>
           </div>
           <span className="text-xs">End</span>
         </div>

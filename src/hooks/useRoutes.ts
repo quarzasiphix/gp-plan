@@ -64,7 +64,9 @@ export const useRoutes = () => {
   const createRoute = async (routeData) => {
     try {
       setLoading(true);
+      console.log('Creating new route with data:', routeData);
       const newRoute = await routeApi.createRoute(routeData);
+      console.log('New route created:', newRoute);
       setRoutes(prevRoutes => [...prevRoutes, newRoute]);
       fetchGroupedRoutes(); // Refresh grouped routes
       toast({
@@ -90,7 +92,9 @@ export const useRoutes = () => {
   const updateRoute = async (id, routeData) => {
     try {
       setLoading(true);
+      console.log(`Updating route ${id} with data:`, routeData);
       const updatedRoute = await routeApi.updateRoute(id, routeData);
+      console.log('Route updated:', updatedRoute);
       setRoutes(prevRoutes => prevRoutes.map(route => route.id === id ? updatedRoute : route));
       fetchGroupedRoutes(); // Refresh grouped routes
       toast({
@@ -116,7 +120,9 @@ export const useRoutes = () => {
   const deleteRoute = async (id) => {
     try {
       setLoading(true);
+      console.log(`Deleting route ${id}`);
       await routeApi.deleteRoute(id);
+      console.log(`Route ${id} deleted successfully`);
       setRoutes(prevRoutes => prevRoutes.filter(route => route.id !== id));
       fetchGroupedRoutes(); // Refresh grouped routes
       toast({
