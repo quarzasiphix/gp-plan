@@ -1,196 +1,193 @@
 
-// Mock API service for routes
+// Real API service for routes
+const API_BASE_URL = 'https://gp.quarza.online/api/routes';
 
-// Mock data
-const mockRoutes = [
-  {
-    id: '1',
-    name: 'Poland to Spain Trip',
-    startDate: '2024-07-15',
-    stops: [
-      {
-        address: 'Warsaw, Poland',
-        lat: 52.2297,
-        lng: 21.0122,
-      },
-      {
-        address: 'Berlin, Germany',
-        lat: 52.5200,
-        lng: 13.4050,
-      },
-      {
-        address: 'Paris, France',
-        lat: 48.8566,
-        lng: 2.3522,
-      },
-      {
-        address: 'Madrid, Spain',
-        lat: 40.4168,
-        lng: -3.7038,
-      },
-    ],
-    returnJourney: true,
-    returnStops: [
-      {
-        address: 'Barcelona, Spain',
-        lat: 41.3851,
-        lng: 2.1734,
-      },
-      {
-        address: 'Lyon, France',
-        lat: 45.7640,
-        lng: 4.8357,
-      },
-      {
-        address: 'Warsaw, Poland',
-        lat: 52.2297,
-        lng: 21.0122,
-      },
-    ],
-    duration: '35h 20m',
-    distance: '2,750 km',
-  },
-  {
-    id: '2',
-    name: 'Eastern Europe Tour',
-    startDate: '2024-08-10',
-    stops: [
-      {
-        address: 'Warsaw, Poland',
-        lat: 52.2297,
-        lng: 21.0122,
-      },
-      {
-        address: 'Krakow, Poland',
-        lat: 50.0647,
-        lng: 19.9450,
-      },
-      {
-        address: 'Vienna, Austria',
-        lat: 48.2082,
-        lng: 16.3738,
-      },
-      {
-        address: 'Budapest, Hungary',
-        lat: 47.4979,
-        lng: 19.0402,
-      },
-    ],
-    returnJourney: false,
-    returnStops: [],
-    duration: '12h 45m',
-    distance: '890 km',
-  },
-  {
-    id: '3',
-    name: 'Baltic Route',
-    startDate: '2024-07-15', // Same date as first route
-    stops: [
-      {
-        address: 'Warsaw, Poland',
-        lat: 52.2297,
-        lng: 21.0122,
-      },
-      {
-        address: 'Vilnius, Lithuania',
-        lat: 54.6872,
-        lng: 25.2797,
-      },
-      {
-        address: 'Riga, Latvia',
-        lat: 56.9496,
-        lng: 24.1052,
-      },
-      {
-        address: 'Tallinn, Estonia',
-        lat: 59.4370,
-        lng: 24.7536,
-      },
-    ],
-    returnJourney: true,
-    returnStops: [
-      {
-        address: 'Warsaw, Poland',
-        lat: 52.2297,
-        lng: 21.0122,
-      },
-    ],
-    duration: '15h 30m',
-    distance: '1,050 km',
-  },
-];
+// Helper to format routes data for frontend use
+const formatRouteData = (route) => {
+  // Extract return journey stops if needed
+  const returnStops = route.stops
+    ? route.stops.filter(stop => stop.is_return_journey).sort((a, b) => a.stop_order - b.stop_order)
+    : [];
+  
+  // Extract regular stops
+  const regularStops = route.stops 
+    ? route.stops.filter(stop => !stop.is_return_journey).sort((a, b) => a.stop_order - b.stop_order)
+    : [];
+  
+  return {
+    id: route.id,
+    name: route.name,
+    startDate: route.start_date,
+    duration: route.duration || '',
+    distance: route.distance || '',
+    returnJourney: route.return_journey,
+    stops: regularStops.map(stop => ({
+      address: stop.address,
+      lat: stop.lat,
+      lng: stop.lng
+    })),
+    returnStops: returnStops.map(stop => ({
+      address: stop.address,
+      lat: stop.lat,
+      lng: stop.lng
+    }))
+  };
+};
 
-// Helper to simulate API delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// Format data for API submission
+const formatDataForApi = (routeData) => {
+  // Combine regular and return stops with proper flags
+  const allStops = [
+    ...routeData.stops.map((stop, index) => ({
+      address: stop.address,
+      lat: stop.lat,
+      lng: stop.lng,
+      stop_order: index + 1,
+      is_return_journey: false
+    })),
+    ...(routeData.returnJourney ? routeData.returnStops.map((stop, index) => ({
+      address: stop.address,
+      lat: stop.lat,
+      lng: stop.lng,
+      stop_order: index + 1,
+      is_return_journey: true
+    })) : [])
+  ];
+
+  return {
+    name: routeData.name,
+    start_date: routeData.startDate,
+    duration: routeData.duration,
+    distance: routeData.distance,
+    return_journey: routeData.returnJourney,
+    stops: allStops
+  };
+};
 
 // API service
 export const routeApi = {
   // Get all routes
   getRoutes: async () => {
-    await delay(500); // Simulate network delay
-    return [...mockRoutes];
+    try {
+      const response = await fetch(`${API_BASE_URL}`);
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.map(formatRouteData);
+    } catch (error) {
+      console.error('Error fetching routes:', error);
+      throw error;
+    }
   },
   
   // Get route by ID
-  getRoute: async (id: string) => {
-    await delay(300);
-    const route = mockRoutes.find(r => r.id === id);
-    if (!route) throw new Error('Route not found');
-    return { ...route };
+  getRoute: async (id) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/${id}`);
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      const data = await response.json();
+      return formatRouteData(data);
+    } catch (error) {
+      console.error(`Error fetching route ${id}:`, error);
+      throw error;
+    }
   },
   
   // Create new route
-  createRoute: async (routeData: any) => {
-    await delay(700);
-    const newRoute = {
-      ...routeData,
-      id: Date.now().toString(),
-    };
-    mockRoutes.push(newRoute);
-    return newRoute;
+  createRoute: async (routeData) => {
+    try {
+      const formattedData = formatDataForApi(routeData);
+      const response = await fetch(`${API_BASE_URL}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formattedData),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API error: ${response.status} - ${errorText}`);
+      }
+      
+      const data = await response.json();
+      return formatRouteData(data);
+    } catch (error) {
+      console.error('Error creating route:', error);
+      throw error;
+    }
   },
   
   // Update existing route
-  updateRoute: async (id: string, routeData: any) => {
-    await delay(500);
-    const index = mockRoutes.findIndex(r => r.id === id);
-    if (index === -1) throw new Error('Route not found');
-    
-    const updatedRoute = { ...routeData, id };
-    mockRoutes[index] = updatedRoute;
-    return updatedRoute;
+  updateRoute: async (id, routeData) => {
+    try {
+      const formattedData = formatDataForApi(routeData);
+      const response = await fetch(`${API_BASE_URL}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formattedData),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API error: ${response.status} - ${errorText}`);
+      }
+      
+      const data = await response.json();
+      return formatRouteData(data);
+    } catch (error) {
+      console.error(`Error updating route ${id}:`, error);
+      throw error;
+    }
   },
   
   // Delete route
-  deleteRoute: async (id: string) => {
-    await delay(300);
-    const index = mockRoutes.findIndex(r => r.id === id);
-    if (index === -1) throw new Error('Route not found');
-    
-    mockRoutes.splice(index, 1);
-    return { success: true };
+  deleteRoute: async (id) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      return { success: true };
+    } catch (error) {
+      console.error(`Error deleting route ${id}:`, error);
+      throw error;
+    }
   },
   
   // Group routes by date
   getRoutesByDate: async () => {
-    await delay(500);
-    const routes = [...mockRoutes];
-    
-    // Group by date
-    const groupedRoutes: Record<string, any[]> = {};
-    
-    routes.forEach(route => {
-      const date = route.startDate;
-      if (!groupedRoutes[date]) {
-        groupedRoutes[date] = [];
-      }
-      groupedRoutes[date].push(route);
-    });
-    
-    // Convert to array format for easier rendering
-    return Object.entries(groupedRoutes).map(([date, routes]) => ({
-      date,
-      routes,
-    })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    try {
+      const routes = await routeApi.getRoutes();
+      
+      // Group by date
+      const groupedRoutes = {};
+      
+      routes.forEach(route => {
+        const date = route.startDate;
+        if (!groupedRoutes[date]) {
+          groupedRoutes[date] = [];
+        }
+        groupedRoutes[date].push(route);
+      });
+      
+      // Convert to array format for easier rendering
+      return Object.entries(groupedRoutes).map(([date, routes]) => ({
+        date,
+        routes,
+      })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    } catch (error) {
+      console.error('Error grouping routes by date:', error);
+      throw error;
+    }
   },
 };

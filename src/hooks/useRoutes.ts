@@ -17,7 +17,8 @@ export const useRoutes = () => {
       setRoutes(data);
       setError(null);
     } catch (err) {
-      setError(err.message);
+      console.error('Error loading routes:', err);
+      setError(err.message || 'Failed to load routes');
       toast({
         title: 'Error',
         description: 'Failed to load routes. Please try again.',
@@ -36,7 +37,8 @@ export const useRoutes = () => {
       setGroupedRoutes(data);
       setError(null);
     } catch (err) {
-      setError(err.message);
+      console.error('Error loading grouped routes:', err);
+      setError(err.message || 'Failed to load routes');
       toast({
         title: 'Error',
         description: 'Failed to load routes. Please try again.',
@@ -52,7 +54,7 @@ export const useRoutes = () => {
     try {
       setLoading(true);
       const newRoute = await routeApi.createRoute(routeData);
-      setRoutes([...routes, newRoute]);
+      setRoutes(prevRoutes => [...prevRoutes, newRoute]);
       fetchGroupedRoutes(); // Refresh grouped routes
       toast({
         title: 'Success',
@@ -60,7 +62,8 @@ export const useRoutes = () => {
       });
       return newRoute;
     } catch (err) {
-      setError(err.message);
+      console.error('Error creating route:', err);
+      setError(err.message || 'Failed to create route');
       toast({
         title: 'Error',
         description: 'Failed to create route. Please try again.',
@@ -77,7 +80,7 @@ export const useRoutes = () => {
     try {
       setLoading(true);
       const updatedRoute = await routeApi.updateRoute(id, routeData);
-      setRoutes(routes.map(route => route.id === id ? updatedRoute : route));
+      setRoutes(prevRoutes => prevRoutes.map(route => route.id === id ? updatedRoute : route));
       fetchGroupedRoutes(); // Refresh grouped routes
       toast({
         title: 'Success',
@@ -85,7 +88,8 @@ export const useRoutes = () => {
       });
       return updatedRoute;
     } catch (err) {
-      setError(err.message);
+      console.error('Error updating route:', err);
+      setError(err.message || 'Failed to update route');
       toast({
         title: 'Error',
         description: 'Failed to update route. Please try again.',
@@ -102,14 +106,15 @@ export const useRoutes = () => {
     try {
       setLoading(true);
       await routeApi.deleteRoute(id);
-      setRoutes(routes.filter(route => route.id !== id));
+      setRoutes(prevRoutes => prevRoutes.filter(route => route.id !== id));
       fetchGroupedRoutes(); // Refresh grouped routes
       toast({
         title: 'Success',
         description: 'Route deleted successfully!',
       });
     } catch (err) {
-      setError(err.message);
+      console.error('Error deleting route:', err);
+      setError(err.message || 'Failed to delete route');
       toast({
         title: 'Error',
         description: 'Failed to delete route. Please try again.',
