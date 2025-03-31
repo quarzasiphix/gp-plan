@@ -31,6 +31,7 @@ export const useRouteForm = ({ initialRoute, onSave }: UseRouteFormProps) => {
   });
   
   const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
   
   const [date, setDate] = useState<Date | undefined>(() => {
     if (initialRoute?.startDate) {
@@ -73,15 +74,13 @@ export const useRouteForm = ({ initialRoute, onSave }: UseRouteFormProps) => {
   const handleLocationSelect = (location: Location) => {
     console.log("Location selected:", location);
     setCurrentLocation(location);
+    // Clear any validation errors when a location is selected
+    setValidationError(null);
   };
   
   const addStop = () => {
     if (!currentLocation) {
-      toast({
-        title: "No location selected",
-        description: "Please select a location first",
-        variant: "destructive"
-      });
+      setValidationError("Please select a location first");
       return;
     }
     
@@ -92,6 +91,7 @@ export const useRouteForm = ({ initialRoute, onSave }: UseRouteFormProps) => {
       });
       console.log("Starting point added, moving to next step");
       setCurrentStep(2);
+      setValidationError(null);
     } 
     else if (currentStep === 2) {
       setRouteData({
@@ -99,6 +99,7 @@ export const useRouteForm = ({ initialRoute, onSave }: UseRouteFormProps) => {
         stops: [...routeData.stops, currentLocation],
       });
       console.log("Stop added to journey");
+      setValidationError(null);
     }
     else if (currentStep === 3 && routeData.returnJourney) {
       setRouteData({
@@ -106,6 +107,7 @@ export const useRouteForm = ({ initialRoute, onSave }: UseRouteFormProps) => {
         returnStops: [...routeData.returnStops, currentLocation],
       });
       console.log("Stop added to return journey");
+      setValidationError(null);
     }
     
     setCurrentLocation(null);
@@ -123,35 +125,37 @@ export const useRouteForm = ({ initialRoute, onSave }: UseRouteFormProps) => {
     }
   };
   
+  const validateStep = () => {
+    switch (currentStep) {
+      case 0:
+        if (!routeData.name || !routeData.startDate) {
+          setValidationError("Please provide a route name and departure date");
+          return false;
+        }
+        break;
+      case 1:
+        if (routeData.stops.length === 0) {
+          setValidationError("Please select a starting point for your journey");
+          return false;
+        }
+        break;
+      case 2:
+        if (routeData.stops.length < 2) {
+          setValidationError("Please add at least one additional stop to your journey");
+          return false;
+        }
+        break;
+      default:
+        break;
+    }
+    setValidationError(null);
+    return true;
+  };
+  
   const handleContinue = () => {
     console.log("Continue button clicked, current step:", currentStep);
     
-    if (currentStep === 0) {
-      if (!routeData.name || !routeData.startDate) {
-        toast({
-          title: "Missing information",
-          description: "Please provide a route name and departure date",
-          variant: "destructive"
-        });
-        return;
-      }
-    }
-    
-    if (currentStep === 1 && routeData.stops.length === 0) {
-      toast({
-        title: "No starting point",
-        description: "Please select a starting point for your journey",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (currentStep === 2 && routeData.stops.length < 2) {
-      toast({
-        title: "Insufficient stops",
-        description: "Please add at least one additional stop to your journey",
-        variant: "destructive"
-      });
+    if (!validateStep()) {
       return;
     }
     
@@ -165,6 +169,7 @@ export const useRouteForm = ({ initialRoute, onSave }: UseRouteFormProps) => {
   };
   
   const handleBack = () => {
+    setValidationError(null);
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     } else {
@@ -190,6 +195,7 @@ export const useRouteForm = ({ initialRoute, onSave }: UseRouteFormProps) => {
     date,
     currentLocation,
     steps,
+    validationError,
     handleInputChange,
     setDate,
     handleLocationSelect,

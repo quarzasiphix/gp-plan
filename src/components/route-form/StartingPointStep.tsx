@@ -29,6 +29,7 @@ const StartingPointStep = ({
           <button
             onClick={onAddStop}
             className="w-full bg-primary text-primary-foreground py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 hover:bg-primary/90 active:scale-95"
+            type="button"
           >
             <Plus className="h-4 w-4" />
             Set as Starting Point

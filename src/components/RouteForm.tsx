@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouteForm } from './route-form/useRouteForm';
 import FormStepHeader from './route-form/FormStepHeader';
 import FormFooter from './route-form/FormFooter';
@@ -23,6 +23,7 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }: RouteFormProps) =>
     date,
     currentLocation,
     steps,
+    validationError,
     handleInputChange,
     setDate,
     handleLocationSelect,
@@ -113,6 +114,7 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }: RouteFormProps) =>
       <FormFooter 
         onContinue={handleContinue} 
         isLastStep={currentStep === steps.length - 1}
+        error={validationError}
       />
     </div>
   );
