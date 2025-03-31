@@ -1,3 +1,4 @@
+
 // Route API service
 import { fetchWithCORS, getApiUrl } from './apiUtils';
 import { formatRouteData, formatDataForApi } from './formatters';
@@ -31,8 +32,21 @@ export const routeApi = {
       }
       
       // Convert each route to the format expected by the frontend
-      // Note: List endpoint doesn't include stops, so we initialize with empty array
-      return data.map(route => formatRouteData({...route, stops: []}));
+      // Note: List endpoint doesn't include stops, so we need to fetch individual routes
+      const routesWithDetails = await Promise.all(
+        data.map(async (route) => {
+          try {
+            // For each route in the list, fetch its complete details including stops
+            return await routeApi.getRoute(route.id);
+          } catch (error) {
+            console.error(`Error fetching details for route ${route.id}:`, error);
+            // If we can't get details, use the basic info with empty stops
+            return formatRouteData({...route, stops: []});
+          }
+        })
+      );
+      
+      return routesWithDetails;
     } catch (error) {
       console.error('Error fetching routes:', error);
       throw error;
@@ -79,7 +93,7 @@ export const routeApi = {
       if (Array.isArray(data)) {
         console.log('Received array response for single route - extracting first item');
         // Find the route with the matching ID if possible
-        const matchingRoute = data.find(route => route.id === id);
+        const matchingRoute = data.find(route => route.id === id || route.id === parseInt(id));
         if (matchingRoute) {
           data = matchingRoute;
         } else {

@@ -8,13 +8,20 @@ export const formatRouteData = (route) => {
   
   // Extract return journey stops if needed
   const returnStops = stopsArray
-    .filter(stop => stop.is_return_journey === 1)
+    .filter(stop => stop.is_return_journey === 1 || stop.is_return_journey === "1")
     .sort((a, b) => a.stop_order - b.stop_order);
   
   // Extract regular stops
   const regularStops = stopsArray
-    .filter(stop => stop.is_return_journey === 0)
+    .filter(stop => stop.is_return_journey === 0 || stop.is_return_journey === "0")
     .sort((a, b) => a.stop_order - b.stop_order);
+  
+  // Log what we're parsing to help with debugging
+  console.log(`Parsing route ${route.id}:`, {
+    totalStops: stopsArray.length,
+    regularStops: regularStops.length,
+    returnStops: returnStops.length
+  });
   
   return {
     id: route.id,
