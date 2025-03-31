@@ -3,6 +3,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { MapPin, Search } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/components/ui/use-toast';
+import { 
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
 
 // Map component with enhanced functionality
 const Map = ({
@@ -14,6 +22,8 @@ const Map = ({
 }) => {
   const mapRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const isMobile = useIsMobile();
   
   // In a real implementation, we would use the Google Maps API
@@ -39,6 +49,71 @@ const Map = ({
       }
     };
   }, []);
+
+  useEffect(() => {
+    // Search for locations when searchTerm changes
+    if (searchTerm.length > 2) {
+      setIsSearching(true);
+      // Simulate API delay
+      const timeout = setTimeout(() => {
+        const results = searchLocations(searchTerm);
+        setSearchResults(results);
+        setIsSearching(false);
+      }, 500);
+      
+      return () => clearTimeout(timeout);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTerm]);
+
+  const searchLocations = (term) => {
+    // Dictionary of some cities and their approximate coordinates
+    const cities = {
+      'warsaw': { lat: 52.2297, lng: 21.0122, country: 'Poland' },
+      'berlin': { lat: 52.5200, lng: 13.4050, country: 'Germany' },
+      'paris': { lat: 48.8566, lng: 2.3522, country: 'France' },
+      'london': { lat: 51.5074, lng: -0.1278, country: 'UK' },
+      'madrid': { lat: 40.4168, lng: -3.7038, country: 'Spain' },
+      'rome': { lat: 41.9028, lng: 12.4964, country: 'Italy' },
+      'vienna': { lat: 48.2082, lng: 16.3738, country: 'Austria' },
+      'amsterdam': { lat: 52.3676, lng: 4.9041, country: 'Netherlands' },
+      'brussels': { lat: 50.8503, lng: 4.3517, country: 'Belgium' },
+      'prague': { lat: 50.0755, lng: 14.4378, country: 'Czech Republic' },
+      'barcelona': { lat: 41.3851, lng: 2.1734, country: 'Spain' },
+      'lodz': { lat: 51.7592, lng: 19.4560, country: 'Poland' },
+    };
+    
+    // Filter cities based on the search term
+    const searchLower = term.toLowerCase();
+    const results = [];
+    
+    for (const [city, data] of Object.entries(cities)) {
+      if (city.includes(searchLower)) {
+        results.push({
+          address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
+          lat: data.lat,
+          lng: data.lng
+        });
+      }
+    }
+    
+    return results;
+  };
+
+  const handleSelectSearchResult = (location) => {
+    setSearchTerm(location.address);
+    setSearchResults([]);
+    
+    if (onLocationSelect) {
+      onLocationSelect(location);
+      
+      toast({
+        title: "Location Selected",
+        description: `Selected: ${location.address}`,
+      });
+    }
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -162,26 +237,37 @@ const Map = ({
   return (
     <div className={`relative ${isMobile ? 'h-[70vh]' : 'h-full'} ${className}`}>
       {interactive && (
-        <form 
-          onSubmit={handleSearch} 
-          className="absolute top-2 left-0 right-0 mx-auto w-[95%] max-w-md z-10"
-        >
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search for a city or address..."
-              className="w-full pr-10 py-2.5 pl-3 text-sm rounded-xl border border-input bg-background shadow-sm"
+        <div className="absolute top-2 left-0 right-0 mx-auto w-[95%] max-w-md z-10">
+          <Command className="rounded-lg border shadow-md">
+            <CommandInput
+              placeholder="Search for a city..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onValueChange={setSearchTerm}
             />
-            <button 
-              type="submit" 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground"
-            >
-              <Search className="h-4 w-4" />
-            </button>
-          </div>
-        </form>
+            {searchResults.length > 0 && (
+              <CommandList>
+                {isSearching ? (
+                  <div className="p-2 text-center text-sm text-muted-foreground">
+                    Searching...
+                  </div>
+                ) : (
+                  <CommandGroup heading="Results">
+                    {searchResults.map((location, index) => (
+                      <CommandItem 
+                        key={index} 
+                        onSelect={() => handleSelectSearchResult(location)}
+                        className="flex items-center cursor-pointer"
+                      >
+                        <MapPin className="h-4 w-4 mr-2 text-primary" />
+                        {location.address}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+              </CommandList>
+            )}
+          </Command>
+        </div>
       )}
       
       <div 
