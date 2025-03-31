@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Calendar, Plus, ArrowRight } from 'lucide-react';
@@ -14,9 +13,14 @@ const Index = () => {
   // Get upcoming routes (first 3)
   const upcomingRoutes = groupedRoutes
     .flatMap(group => group.routes)
-    .filter(route => new Date(route.startDate) >= new Date())
+    .filter(route => {
+      const startDate = new Date(route.startDate);
+      return startDate >= new Date();
+    })
     .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
     .slice(0, 3);
+  
+  console.log('Upcoming routes:', upcomingRoutes);
   
   const handleEdit = (id) => {
     window.location.href = `/routes/edit/${id}`;
@@ -42,7 +46,7 @@ const Index = () => {
               <h2 className="text-xl font-semibold">Route Overview</h2>
             </div>
             <Map 
-              markers={groupedRoutes.flatMap(group => group.routes.flatMap(route => route.stops))}
+              markers={groupedRoutes.flatMap(group => group.routes.flatMap(route => route.stops || []))}
               interactive={false} 
               onLocationSelect={() => {}} // Add empty handler to satisfy the prop requirement
             />
