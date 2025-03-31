@@ -31,10 +31,9 @@ export const routeApi = {
         throw new Error('Unexpected API response format');
       }
       
-      return data.map(route => {
-        // Routes from the list endpoint don't include stops
-        return formatRouteData({...route, stops: []});
-      });
+      // Convert each route to the format expected by the frontend
+      // Note: List endpoint doesn't include stops, so we initialize with empty array
+      return data.map(route => formatRouteData({...route, stops: []}));
     } catch (error) {
       console.error('Error fetching routes:', error);
       throw error;
@@ -80,8 +79,9 @@ export const routeApi = {
         throw new Error(`API Error: ${data.error}`);
       }
       
-      // Ensure stops array exists and process it
+      // Ensure stops array exists
       if (!data.stops) {
+        console.log('No stops data found in route, initializing with empty array');
         data.stops = [];
       }
       

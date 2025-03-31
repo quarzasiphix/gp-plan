@@ -15,9 +15,14 @@ const RouteCard = ({ route, onEdit, onDelete }) => {
   const isUpcoming = new Date(startDate) > new Date();
   const timeFromNow = formatDistance(new Date(startDate), new Date(), { addSuffix: true });
   
-  // Safely get first and last stop addresses
-  const firstStopAddress = stops && stops.length > 0 ? stops[0].address.split(',')[0] : 'Starting point';
-  const lastStopAddress = stops && stops.length > 0 ? stops[stops.length - 1].address.split(',')[0] : 'Destination';
+  // Default values for start/end locations when stops are missing
+  const firstStopAddress = stops && stops.length > 0 
+    ? stops[0].address.split(',')[0] 
+    : 'Starting point';
+    
+  const lastStopAddress = stops && stops.length > 0 
+    ? stops[stops.length - 1].address.split(',')[0] 
+    : 'Destination';
   
   return (
     <div className="list-card group">
