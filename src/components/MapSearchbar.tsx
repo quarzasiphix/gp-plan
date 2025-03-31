@@ -22,10 +22,13 @@ interface MapSearchbarProps {
 const MapSearchbar = ({
   searchTerm,
   setSearchTerm,
-  searchResults,
+  searchResults = [],
   isSearching,
   onSelectLocation
 }: MapSearchbarProps) => {
+  // Ensure searchResults is always an array
+  const results = Array.isArray(searchResults) ? searchResults : [];
+
   return (
     <div className="absolute top-2 left-0 right-0 mx-auto w-[95%] max-w-md z-10">
       <Command key="command-search" className="rounded-lg border shadow-md">
@@ -34,7 +37,7 @@ const MapSearchbar = ({
           value={searchTerm || ''}
           onValueChange={(val) => setSearchTerm(val || '')}
         />
-        {searchResults && searchResults.length > 0 && (
+        {results.length > 0 && (
           <CommandList>
             {isSearching ? (
               <div className="p-2 text-center text-sm text-muted-foreground">
@@ -42,7 +45,7 @@ const MapSearchbar = ({
               </div>
             ) : (
               <CommandGroup heading="Results">
-                {searchResults.map((location, index) => (
+                {results.map((location, index) => (
                   <CommandItem 
                     key={index} 
                     onSelect={() => onSelectLocation(location)}
@@ -56,7 +59,7 @@ const MapSearchbar = ({
             )}
           </CommandList>
         )}
-        {searchTerm && searchTerm.length > 2 && searchResults && searchResults.length === 0 && !isSearching && (
+        {searchTerm && searchTerm.length > 2 && results.length === 0 && !isSearching && (
           <CommandList>
             <CommandEmpty>No results found</CommandEmpty>
           </CommandList>

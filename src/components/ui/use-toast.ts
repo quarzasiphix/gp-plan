@@ -1,5 +1,5 @@
 
 import { useToast, toast } from "@/hooks/use-toast";
 
-// Make sure the toast function is properly exported
+// Export these functions directly to fix the undefined error
 export { useToast, toast };

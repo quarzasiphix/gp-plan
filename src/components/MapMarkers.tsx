@@ -7,12 +7,15 @@ interface MapMarkersProps {
   markers: Location[];
 }
 
-const MapMarkers = ({ markers }: MapMarkersProps) => {
-  if (!markers || markers.length === 0) return null;
+const MapMarkers = ({ markers = [] }: MapMarkersProps) => {
+  // Ensure markers is always an array
+  const markerData = Array.isArray(markers) ? markers : [];
+  
+  if (markerData.length === 0) return null;
   
   return (
     <>
-      {markers.map((marker, index) => (
+      {markerData.map((marker, index) => (
         <div 
           key={index}
           className="absolute map-pin-drop"

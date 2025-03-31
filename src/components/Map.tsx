@@ -31,11 +31,13 @@ const Map = ({
     isSearching,
     currentLocation,
     setCurrentLocation,
-    handleSelectSearchResult,
+    // Rename the imported function to avoid collision
+    handleSelectSearchResult: handleSearchFromHook,
     generateMockLocation
   } = useLocationSearch();
 
-  const handleSelectSearchResult = (location: Location) => {
+  // This is our local handler that uses the props
+  const handleMapSearchResult = (location: Location) => {
     if (!location) return;
     
     if (onLocationSelect) {
@@ -122,9 +124,9 @@ const Map = ({
         <MapSearchbar
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          searchResults={searchResults}
+          searchResults={searchResults || []} // Ensure we pass an array, not undefined
           isSearching={isSearching}
-          onSelectLocation={handleSelectSearchResult}
+          onSelectLocation={handleMapSearchResult}
         />
       )}
       
