@@ -57,7 +57,7 @@ const Map = ({
       // Simulate API delay
       const timeout = setTimeout(() => {
         const results = searchLocations(searchTerm);
-        setSearchResults(results);
+        setSearchResults(results || []);
         setIsSearching(false);
       }, 500);
       
@@ -244,7 +244,7 @@ const Map = ({
               value={searchTerm}
               onValueChange={setSearchTerm}
             />
-            {searchResults.length > 0 && (
+            {searchResults && searchResults.length > 0 && (
               <CommandList>
                 {isSearching ? (
                   <div className="p-2 text-center text-sm text-muted-foreground">
@@ -264,6 +264,11 @@ const Map = ({
                     ))}
                   </CommandGroup>
                 )}
+              </CommandList>
+            )}
+            {searchTerm.length > 2 && searchResults && searchResults.length === 0 && (
+              <CommandList>
+                <CommandEmpty>No results found</CommandEmpty>
               </CommandList>
             )}
           </Command>
@@ -289,7 +294,7 @@ const Map = ({
           )}
           
           {/* Render markers */}
-          {markers.map((marker, index) => (
+          {markers && markers.map((marker, index) => (
             <div 
               key={index}
               className="absolute map-pin-drop"
@@ -308,7 +313,7 @@ const Map = ({
           ))}
           
           {/* Placeholder for routes - would use actual polylines in real implementation */}
-          {route.length > 0 && (
+          {route && route.length > 0 && (
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
               <path
                 d="M100,200 L300,180 L500,250 L700,170"
