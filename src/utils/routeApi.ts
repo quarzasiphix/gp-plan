@@ -1,4 +1,3 @@
-
 // Route API service
 import { fetchWithCORS, getApiUrl } from './apiUtils';
 import { formatRouteData, formatDataForApi } from './formatters';
@@ -74,6 +73,20 @@ export const routeApi = {
       }
       
       console.log('Single route API response:', data);
+      
+      // Check if we received an array (old format) or an object (expected)
+      // Some APIs return an array with a single item when fetching by ID
+      if (Array.isArray(data)) {
+        console.log('Received array response for single route - extracting first item');
+        // Find the route with the matching ID if possible
+        const matchingRoute = data.find(route => route.id === id);
+        if (matchingRoute) {
+          data = matchingRoute;
+        } else {
+          // Otherwise just take the first item
+          data = data[0];
+        }
+      }
       
       if (data.error) {
         throw new Error(`API Error: ${data.error}`);

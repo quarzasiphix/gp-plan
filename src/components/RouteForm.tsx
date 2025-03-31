@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Plus, ChevronRight, ArrowLeft, Trash } from 'lucide-react';
+import { MapPin, Plus, ChevronRight, ArrowLeft, Trash, CalendarIcon } from 'lucide-react';
 import Map from './Map';
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const RouteForm = ({ initialRoute = null, onSave, onCancel }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -13,6 +22,28 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }) => {
   });
   
   const [currentLocation, setCurrentLocation] = useState(null);
+  
+  const [date, setDate] = useState(() => {
+    if (initialRoute?.startDate) {
+      try {
+        return new Date(initialRoute.startDate);
+      } catch (e) {
+        console.error("Failed to parse initial date:", e);
+        return undefined;
+      }
+    }
+    return undefined;
+  });
+  
+  useEffect(() => {
+    if (date) {
+      const formattedDate = format(date, "yyyy-MM-dd");
+      setRouteData(prev => ({
+        ...prev,
+        startDate: formattedDate
+      }));
+    }
+  }, [date]);
   
   const steps = [
     { title: 'Basic Info', description: 'Set route name and departure date' },
@@ -134,14 +165,29 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }) => {
             
             <div>
               <label className="block text-sm font-medium mb-1">Departure Date</label>
-              <input
-                type="date"
-                name="startDate"
-                value={routeData.startDate}
-                onChange={handleInputChange}
-                className="search-input"
-                required
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className={cn(
+                      "w-full justify-start text-left font-normal border border-input bg-background",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         );
