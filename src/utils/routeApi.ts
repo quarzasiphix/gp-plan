@@ -43,7 +43,7 @@ export const routeApi = {
   // Get route by ID
   getRoute: async (id) => {
     try {
-      // The PHP API expects routes.php/{id} format
+      // The API expects query parameter format ?id=X
       console.log(`Fetching route ${id} from: ${getApiUrl(id)}`);
       
       const response = await fetchWithCORS(getApiUrl(id), {
