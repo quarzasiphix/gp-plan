@@ -80,6 +80,7 @@ const Map = ({
       'brussels': { lat: 50.8503, lng: 4.3517, country: 'Belgium' },
       'prague': { lat: 50.0755, lng: 14.4378, country: 'Czech Republic' },
       'barcelona': { lat: 41.3851, lng: 2.1734, country: 'Spain' },
+      'lodz': { lat: 51.7592, lng: 19.4560, country: 'Poland' },
     };
     
     // Check if search term matches any of our mock cities
@@ -185,17 +186,17 @@ const Map = ({
       
       <div 
         ref={mapRef} 
-        className="map-container bg-accent h-full rounded-lg overflow-hidden"
+        className="map-container bg-accent/30 h-full rounded-lg overflow-hidden"
         onClick={handleMapClick}
       >
         {/* This is a placeholder for the actual map */}
-        <div className="flex items-center justify-center h-full bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=Europe&zoom=4&size=800x600&key=DUMMY-KEY')] bg-no-repeat bg-cover relative">
-          <div className="absolute inset-0 bg-accent-foreground/5"></div>
+        <div className="flex items-center justify-center h-full bg-[url('/lovable-uploads/35ae8898-e6d0-4a1c-a11e-0ee42bdcda81.png')] bg-no-repeat bg-cover relative">
+          <div className="absolute inset-0 bg-accent/10"></div>
           
           {/* User instructions */}
-          {interactive && markers.length === 0 && (
+          {interactive && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-black/50 text-white p-4 rounded-lg max-w-xs text-center">
+              <div className="bg-gray-500/70 text-white p-4 rounded-lg max-w-xs text-center">
                 <p>Click on the map to select a location or use the search bar above</p>
               </div>
             </div>
