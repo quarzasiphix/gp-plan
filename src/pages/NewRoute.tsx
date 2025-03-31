@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import RouteForm from '@/components/RouteForm';
 import { useRoutes } from '@/hooks/useRoutes';
+import { toast } from '@/components/ui/use-toast';
 
 const NewRoute = () => {
   const navigate = useNavigate();
@@ -10,10 +11,20 @@ const NewRoute = () => {
   
   const handleSave = async (routeData) => {
     try {
+      console.log('Creating new route with data:', routeData);
       await createRoute(routeData);
+      toast({
+        title: "Success",
+        description: "Route created successfully!",
+      });
       navigate('/routes');
     } catch (error) {
       console.error('Failed to create route:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create route. Please try again.",
+        variant: "destructive",
+      });
     }
   };
   

@@ -2,8 +2,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MapPin, Search } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { toast } from '@/components/ui/use-toast';
 
-// Mock implementation - will be replaced with actual Google Maps implementation
+// Map component with enhanced functionality
 const Map = ({
   onLocationSelect,
   markers = [],
@@ -25,11 +26,6 @@ const Map = ({
       
       console.log('Map initialized');
       // Here we would initialize Google Maps
-      // Example:
-      // const map = new google.maps.Map(mapRef.current, {
-      //   center: { lat: 52.2297, lng: 21.0122 }, // Warsaw, Poland
-      //   zoom: 8,
-      // });
     };
     
     // Mock API initialization
@@ -47,48 +43,119 @@ const Map = ({
   const handleSearch = (e) => {
     e.preventDefault();
     console.log('Searching for location:', searchTerm);
-    // In a real implementation:
-    // Use the Google Geocoding API to search for the location
     
-    // For now, let's mock a search result
+    if (!searchTerm) {
+      toast({
+        title: "Search Error",
+        description: "Please enter a location to search",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // For now, let's use a more realistic mock search result based on the search term
     if (searchTerm && onLocationSelect) {
       // Generate a mock location based on the search term
-      const mockLocation = {
-        address: `${searchTerm}, City, Country`,
-        lat: 52.2297 + (Math.random() - 0.5) * 10, // Random latitude near Warsaw
-        lng: 21.0122 + (Math.random() - 0.5) * 10, // Random longitude near Warsaw
-      };
+      const mockLocation = generateMockLocation(searchTerm);
       onLocationSelect(mockLocation);
+      
+      toast({
+        title: "Location Found",
+        description: `Found: ${mockLocation.address}`,
+      });
     }
+  };
+
+  const generateMockLocation = (searchTerm) => {
+    // Dictionary of some cities and their approximate coordinates
+    const cities = {
+      'warsaw': { lat: 52.2297, lng: 21.0122, country: 'Poland' },
+      'berlin': { lat: 52.5200, lng: 13.4050, country: 'Germany' },
+      'paris': { lat: 48.8566, lng: 2.3522, country: 'France' },
+      'london': { lat: 51.5074, lng: -0.1278, country: 'UK' },
+      'madrid': { lat: 40.4168, lng: -3.7038, country: 'Spain' },
+      'rome': { lat: 41.9028, lng: 12.4964, country: 'Italy' },
+      'vienna': { lat: 48.2082, lng: 16.3738, country: 'Austria' },
+      'amsterdam': { lat: 52.3676, lng: 4.9041, country: 'Netherlands' },
+      'brussels': { lat: 50.8503, lng: 4.3517, country: 'Belgium' },
+      'prague': { lat: 50.0755, lng: 14.4378, country: 'Czech Republic' },
+      'barcelona': { lat: 41.3851, lng: 2.1734, country: 'Spain' },
+    };
+    
+    // Check if search term matches any of our mock cities
+    const searchLower = searchTerm.toLowerCase();
+    
+    // Find a matching city
+    for (const [city, data] of Object.entries(cities)) {
+      if (searchLower.includes(city)) {
+        return {
+          address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
+          lat: data.lat,
+          lng: data.lng
+        };
+      }
+    }
+    
+    // If no match, create a random location based on central Europe coordinates
+    const randomLat = 50 + (Math.random() - 0.5) * 10;
+    const randomLng = 10 + (Math.random() - 0.5) * 20;
+    
+    // Create a capitalized version of the search term
+    const capitalizedSearch = searchTerm
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    
+    return {
+      address: `${capitalizedSearch}, Europe`,
+      lat: randomLat,
+      lng: randomLng
+    };
   };
 
   const handleMapClick = (e) => {
     if (!interactive || !onLocationSelect) return;
     
-    // Mock implementation - in reality we'd get lat/lng from the click event
     console.log('Map clicked');
     
-    // Generate random coordinates for demonstration purposes
-    const lat = 52.2297 + (Math.random() - 0.5) * 10; // Random latitude near Warsaw
-    const lng = 21.0122 + (Math.random() - 0.5) * 10; // Random longitude near Warsaw
-    
-    // Create mock location names based on coordinates
-    const mockCities = [
-      "Warsaw", "Berlin", "Paris", "Madrid", "Rome", "Vienna", 
-      "Prague", "Budapest", "Amsterdam", "Brussels", "Copenhagen"
+    // For demonstration, get a semi-random location, but ensure different locations on each click
+    const randomCities = [
+      { name: "Warsaw", country: "Poland", lat: 52.2297, lng: 21.0122 },
+      { name: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050 },
+      { name: "Paris", country: "France", lat: 48.8566, lng: 2.3522 },
+      { name: "Madrid", country: "Spain", lat: 40.4168, lng: -3.7038 },
+      { name: "Rome", country: "Italy", lat: 41.9028, lng: 12.4964 },
+      { name: "Vienna", country: "Austria", lat: 48.2082, lng: 16.3738 },
+      { name: "Prague", country: "Czech Republic", lat: 50.0755, lng: 14.4378 },
+      { name: "Amsterdam", country: "Netherlands", lat: 52.3676, lng: 4.9041 },
+      { name: "Brussels", country: "Belgium", lat: 50.8503, lng: 4.3517 },
+      { name: "Copenhagen", country: "Denmark", lat: 55.6761, lng: 12.5683 },
+      { name: "Helsinki", country: "Finland", lat: 60.1699, lng: 24.9384 },
     ];
-    const mockCountries = ["Poland", "Germany", "France", "Spain", "Italy", "Austria"];
     
-    const randomCity = mockCities[Math.floor(Math.random() * mockCities.length)];
-    const randomCountry = mockCountries[Math.floor(Math.random() * mockCountries.length)];
+    // Get a "random" city but use the click position to select it
+    // This ensures different clicks will select different cities
+    const clickX = e.clientX || 0;
+    const clickY = e.clientY || 0;
+    const cityIndex = (clickX + clickY) % randomCities.length;
+    const city = randomCities[cityIndex];
+    
+    // Add a small random variation to make it seem like a precise click
+    const latVariation = (Math.random() - 0.5) * 0.1;
+    const lngVariation = (Math.random() - 0.5) * 0.1;
     
     const mockLocation = {
-      address: `${randomCity}, ${randomCountry}`,
-      lat: lat,
-      lng: lng,
+      address: `${city.name}, ${city.country}`,
+      lat: city.lat + latVariation,
+      lng: city.lng + lngVariation,
     };
     
     onLocationSelect(mockLocation);
+    
+    toast({
+      title: "Location Selected",
+      description: `Selected: ${mockLocation.address}`,
+    });
   };
 
   return (
@@ -101,8 +168,8 @@ const Map = ({
           <div className="relative">
             <input
               type="text"
-              placeholder="Search for an address..."
-              className="search-input w-full pr-10 py-2.5 text-sm rounded-xl"
+              placeholder="Search for a city or address..."
+              className="w-full pr-10 py-2.5 pl-3 text-sm rounded-xl border border-input bg-background shadow-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -122,8 +189,17 @@ const Map = ({
         onClick={handleMapClick}
       >
         {/* This is a placeholder for the actual map */}
-        <div className="flex items-center justify-center h-full bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=Europe&zoom=4&size=800x600&key=AIzaSyCarMCVcUoVPGIn94YtbU3-JDQUKS7G0a8')] bg-no-repeat bg-cover relative">
+        <div className="flex items-center justify-center h-full bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=Europe&zoom=4&size=800x600&key=DUMMY-KEY')] bg-no-repeat bg-cover relative">
           <div className="absolute inset-0 bg-accent-foreground/5"></div>
+          
+          {/* User instructions */}
+          {interactive && markers.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-black/50 text-white p-4 rounded-lg max-w-xs text-center">
+                <p>Click on the map to select a location or use the search bar above</p>
+              </div>
+            </div>
+          )}
           
           {/* Render markers */}
           {markers.map((marker, index) => (
@@ -131,11 +207,16 @@ const Map = ({
               key={index}
               className="absolute map-pin-drop"
               style={{ 
-                left: `${30 + index * 10}%`, 
-                top: `${40 + (index % 3) * 10}%` 
+                left: `${30 + (index * 10) % 60}%`, 
+                top: `${40 + (index % 5) * 10}%` 
               }}
             >
-              <MapPin className="h-8 w-8 text-primary drop-shadow-lg" />
+              <div className="relative">
+                <MapPin className="h-8 w-8 text-primary drop-shadow-lg" />
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-background text-xs p-1 rounded shadow-md whitespace-nowrap">
+                  {marker.address.split(',')[0]}
+                </div>
+              </div>
             </div>
           ))}
           
