@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RouteForm from '@/components/RouteForm';
 import { useRoutes } from '@/hooks/useRoutes';
@@ -8,6 +8,14 @@ import { toast } from '@/components/ui/use-toast';
 const NewRoute = () => {
   const navigate = useNavigate();
   const { createRoute } = useRoutes();
+  
+  // Error boundary effect
+  useEffect(() => {
+    console.log('NewRoute component mounted');
+    return () => {
+      console.log('NewRoute component unmounted');
+    };
+  }, []);
   
   const handleSave = async (routeData) => {
     try {

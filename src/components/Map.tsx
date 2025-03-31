@@ -52,7 +52,7 @@ const Map = ({
 
   useEffect(() => {
     // Search for locations when searchTerm changes
-    if (searchTerm.length > 2) {
+    if (searchTerm && searchTerm.length > 2) {
       setIsSearching(true);
       // Simulate API delay
       const timeout = setTimeout(() => {
@@ -68,6 +68,8 @@ const Map = ({
   }, [searchTerm]);
 
   const searchLocations = (term) => {
+    if (!term) return [];
+    
     // Dictionary of some cities and their approximate coordinates
     const cities = {
       'warsaw': { lat: 52.2297, lng: 21.0122, country: 'Poland' },
@@ -102,7 +104,9 @@ const Map = ({
   };
 
   const handleSelectSearchResult = (location) => {
-    setSearchTerm(location.address);
+    if (!location) return;
+    
+    setSearchTerm(location.address || '');
     setSearchResults([]);
     
     if (onLocationSelect) {
@@ -142,6 +146,8 @@ const Map = ({
   };
 
   const generateMockLocation = (searchTerm) => {
+    if (!searchTerm) return null;
+    
     // Dictionary of some cities and their approximate coordinates
     const cities = {
       'warsaw': { lat: 52.2297, lng: 21.0122, country: 'Poland' },
@@ -238,11 +244,12 @@ const Map = ({
     <div className={`relative ${isMobile ? 'h-[70vh]' : 'h-full'} ${className}`}>
       {interactive && (
         <div className="absolute top-2 left-0 right-0 mx-auto w-[95%] max-w-md z-10">
-          <Command className="rounded-lg border shadow-md">
+          {/* Use key prop to force remount if needed */}
+          <Command key="command-search" className="rounded-lg border shadow-md">
             <CommandInput
               placeholder="Search for a city..."
-              value={searchTerm}
-              onValueChange={setSearchTerm}
+              value={searchTerm || ''}
+              onValueChange={(val) => setSearchTerm(val || '')}
             />
             {searchResults && searchResults.length > 0 && (
               <CommandList>
@@ -266,7 +273,7 @@ const Map = ({
                 )}
               </CommandList>
             )}
-            {searchTerm.length > 2 && searchResults && searchResults.length === 0 && (
+            {searchTerm && searchTerm.length > 2 && searchResults && searchResults.length === 0 && !isSearching && (
               <CommandList>
                 <CommandEmpty>No results found</CommandEmpty>
               </CommandList>
@@ -281,7 +288,7 @@ const Map = ({
         onClick={handleMapClick}
       >
         {/* This is a placeholder for the actual map */}
-        <div className="flex items-center justify-center h-full bg-[url('/lovable-uploads/35ae8898-e6d0-4a1c-a11e-0ee42bdcda81.png')] bg-no-repeat bg-cover relative">
+        <div className="flex items-center justify-center h-full bg-[url('/lovable-uploads/35ae8898-e6d0-4a1c-a11e-0ee42bdcda81.png')] bg-cover bg-center relative">
           <div className="absolute inset-0 bg-accent/10"></div>
           
           {/* User instructions */}
@@ -294,7 +301,7 @@ const Map = ({
           )}
           
           {/* Render markers */}
-          {markers && markers.map((marker, index) => (
+          {markers && markers.length > 0 && markers.map((marker, index) => (
             <div 
               key={index}
               className="absolute map-pin-drop"
@@ -306,7 +313,7 @@ const Map = ({
               <div className="relative">
                 <MapPin className="h-8 w-8 text-primary drop-shadow-lg" />
                 <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-background text-xs p-1 rounded shadow-md whitespace-nowrap">
-                  {marker.address.split(',')[0]}
+                  {marker.address && marker.address.split(',')[0]}
                 </div>
               </div>
             </div>
