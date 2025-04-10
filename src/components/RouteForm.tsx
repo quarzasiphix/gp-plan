@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useRouteForm } from './route-form/useRouteForm';
 import FormStepHeader from './route-form/FormStepHeader';
 import FormFooter from './route-form/FormFooter';
@@ -56,7 +56,7 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }: RouteFormProps) =>
       case 2:
         return (
           <AddStopsStep 
-            stops={routeData.stops}
+            stops={routeData.stops || []} // Ensure stops is an array
             currentLocation={currentLocation}
             onLocationSelect={handleLocationSelect}
             onAddStop={addStop}
@@ -67,8 +67,8 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }: RouteFormProps) =>
         return (
           <ReturnJourneyStep 
             returnJourney={routeData.returnJourney}
-            lastStop={routeData.stops[routeData.stops.length - 1]}
-            returnStops={routeData.returnStops}
+            lastStop={routeData.stops && routeData.stops.length > 0 ? routeData.stops[routeData.stops.length - 1] : undefined}
+            returnStops={routeData.returnStops || []} // Ensure returnStops is an array
             currentLocation={currentLocation}
             onReturnJourneyChange={handleInputChange}
             onLocationSelect={handleLocationSelect}
@@ -81,9 +81,9 @@ const RouteForm = ({ initialRoute = null, onSave, onCancel }: RouteFormProps) =>
           <ReviewStep 
             routeName={routeData.name}
             startDate={routeData.startDate}
-            stops={routeData.stops}
+            stops={routeData.stops || []} // Ensure stops is an array
             returnJourney={routeData.returnJourney}
-            returnStops={routeData.returnStops}
+            returnStops={routeData.returnStops || []} // Ensure returnStops is an array
           />
         );
       default:
