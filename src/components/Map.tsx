@@ -31,7 +31,6 @@ const Map = ({
     isSearching,
     currentLocation,
     setCurrentLocation,
-    // Rename the imported function to avoid collision
     handleSelectSearchResult: handleSearchFromHook,
     generateMockLocation
   } = useLocationSearch();
@@ -40,9 +39,18 @@ const Map = ({
   const handleMapSearchResult = (location: Location) => {
     if (!location) return;
     
+    // Set in the hook's state
+    setCurrentLocation(location);
+    
+    // Pass to parent component
     if (onLocationSelect) {
       onLocationSelect(location);
     }
+    
+    toast({
+      title: "Location Selected",
+      description: `Selected: ${location.address}`,
+    });
   };
 
   const handleMapClick = (e: React.MouseEvent) => {
@@ -82,6 +90,10 @@ const Map = ({
       lng: city.lng + lngVariation,
     };
     
+    // First set in the hook's state
+    setCurrentLocation(mockLocation);
+    
+    // Then pass to parent component
     onLocationSelect(mockLocation);
     
     toast({
@@ -111,7 +123,7 @@ const Map = ({
           <div className="absolute inset-0 bg-accent/10"></div>
           
           {/* User instructions */}
-          {interactive && (
+          {interactive && !currentLocation && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="bg-gray-500/70 text-white p-4 rounded-lg max-w-xs text-center">
                 <p>Click on the map to select a location or use the search bar above</p>
@@ -119,8 +131,17 @@ const Map = ({
             </div>
           )}
           
+          {/* Selected location marker */}
+          {currentLocation && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="text-primary animate-pulse">
+                <span className="font-bold">Selected:</span> {currentLocation.address}
+              </div>
+            </div>
+          )}
+          
           {/* Render markers and route */}
-          <MapMarkers markers={markers} />
+          <MapMarkers markers={markers.length > 0 ? markers : (currentLocation ? [currentLocation] : [])} />
           <MapRoute route={route} />
         </div>
       </div>

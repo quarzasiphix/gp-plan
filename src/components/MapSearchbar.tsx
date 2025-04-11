@@ -60,7 +60,7 @@ const MapSearchbar = ({
                 ))}
               </CommandGroup>
             ) : (
-              <CommandEmpty>No results found</CommandEmpty>
+              <CommandEmpty>No results found. Try another search term.</CommandEmpty>
             )}
           </CommandList>
         )}

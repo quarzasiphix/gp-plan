@@ -53,11 +53,12 @@ export function useLocationSearch() {
       'lodz': { lat: 51.7592, lng: 19.4560, country: 'Poland' },
     };
     
-    // Filter cities based on the search term
+    // Filter cities based on the search term (case insensitive)
     const searchLower = term.toLowerCase();
     const results: Location[] = [];
     
-    for (const [city, data] of Object.entries(cities)) {
+    Object.entries(cities).forEach(([city, data]) => {
+      // Make search more permissive - check if the city name contains the search term
       if (city.includes(searchLower)) {
         results.push({
           address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
@@ -65,12 +66,12 @@ export function useLocationSearch() {
           lng: data.lng
         });
       }
-    }
+    });
     
     return results;
   };
 
-  const handleSelectSearchResult = (location: Location | null) => {
+  const handleSelectSearchResult = (location: Location) => {
     if (!location) return;
     
     setSearchTerm(location.address);

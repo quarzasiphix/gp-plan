@@ -20,6 +20,7 @@ const StartingPointStep = ({
       <Map
         onLocationSelect={onLocationSelect}
         interactive={true}
+        markers={currentLocation ? [currentLocation] : []}
       />
       
       {currentLocation && (
