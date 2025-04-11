@@ -20,12 +20,6 @@ const NewRoute = () => {
   const handleSave = async (routeData: any) => {
     try {
       console.log('Creating new route with data:', routeData);
-      
-      // Validate routeData has required fields
-      if (!routeData.name || !routeData.stops || routeData.stops.length < 2) {
-        throw new Error("Route must have a name and at least two stops");
-      }
-      
       await createRoute(routeData);
       toast({
         title: "Success",
@@ -36,7 +30,7 @@ const NewRoute = () => {
       console.error('Failed to create route:', error);
       toast({
         title: "Error",
-        description: typeof error === 'string' ? error : "Failed to create route. Please try again.",
+        description: "Failed to create route. Please try again.",
         variant: "destructive",
       });
     }

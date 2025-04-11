@@ -37,12 +37,6 @@ export function useLocationSearch() {
   const searchLocations = (term: string): Location[] => {
     if (!term) return [];
     
-    // Make sure term is a string
-    if (typeof term !== 'string') {
-      console.error("Search term is not a string:", term);
-      return [];
-    }
-    
     // Dictionary of some cities and their approximate coordinates
     const cities: Record<string, { lat: number; lng: number; country: string }> = {
       'warsaw': { lat: 52.2297, lng: 21.0122, country: 'Poland' },
@@ -62,15 +56,6 @@ export function useLocationSearch() {
     };
     
     term = term.toLowerCase().trim();
-    
-    // Return all cities for empty or very short searches to improve UX
-    if (term.length <= 2) {
-      return Object.entries(cities).slice(0, 5).map(([city, data]) => ({
-        address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
-        lat: data.lat,
-        lng: data.lng
-      }));
-    }
     
     // First check for exact matches
     const results: Location[] = [];
@@ -121,13 +106,20 @@ export function useLocationSearch() {
     }
     
     // If still no results, include something to make the UX better
-    if (results.length === 0) {
-      // Return all cities when no match is found
-      return Object.entries(cities).slice(0, 5).map(([city, data]) => ({
-        address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
-        lat: data.lat,
-        lng: data.lng
-      }));
+    if (results.length === 0 && term.length >= 3) {
+      // Find a city starting with the same first letter as search term
+      const firstChar = term.charAt(0);
+      
+      for (const [city, data] of Object.entries(cities)) {
+        if (city.charAt(0) === firstChar) {
+          results.push({
+            address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
+            lat: data.lat,
+            lng: data.lng
+          });
+          break;
+        }
+      }
     }
     
     console.log(`Search for "${term}" returned ${results.length} results`);

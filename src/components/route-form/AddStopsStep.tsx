@@ -20,48 +20,38 @@ const AddStopsStep = ({
   onRemoveStop
 }: AddStopsStepProps) => {
   return (
-    <div className="animate-fade-in space-y-4">
-      <div className="h-[calc(100vh-360px)] min-h-[300px]">
-        <Map
-          onLocationSelect={onLocationSelect}
-          markers={stops}
-          interactive={true}
-          className="h-full"
-        />
-      </div>
+    <div className="animate-fade-in h-[calc(100vh-320px)]">
+      <Map
+        onLocationSelect={onLocationSelect}
+        markers={stops}
+        interactive={true}
+      />
       
       <div className="mt-4 glass-panel p-4 divide-y divide-border">
         <h3 className="font-medium mb-2">Current Stops</h3>
         
-        {stops.length > 0 ? (
-          stops.map((stop, index) => (
-            <div key={index} className="py-2 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <div className="bg-primary/10 rounded-full p-1">
-                  <MapPin className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">{stop.address.split(',')[0]}</p>
-                  <p className="text-xs text-muted-foreground">{stop.address.split(',').slice(1).join(',').trim()}</p>
-                </div>
+        {stops.map((stop, index) => (
+          <div key={index} className="py-2 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="bg-primary/10 rounded-full p-1">
+                <MapPin className="h-4 w-4 text-primary" />
               </div>
-              
-              {index > 0 && (
-                <button
-                  onClick={() => onRemoveStop(index)}
-                  className="p-2 text-muted-foreground hover:text-destructive"
-                  aria-label="Remove stop"
-                >
-                  <Trash className="h-4 w-4" />
-                </button>
-              )}
+              <div>
+                <p className="text-sm font-medium">{stop.address.split(',')[0]}</p>
+                <p className="text-xs text-muted-foreground">{stop.address.split(',').slice(1).join(',').trim()}</p>
+              </div>
             </div>
-          ))
-        ) : (
-          <div className="py-2 text-center text-muted-foreground">
-            No stops added yet. Click on the map or search for locations.
+            
+            {index > 0 && (
+              <button
+                onClick={() => onRemoveStop(index)}
+                className="p-2 text-muted-foreground hover:text-destructive"
+              >
+                <Trash className="h-4 w-4" />
+              </button>
+            )}
           </div>
-        )}
+        ))}
         
         {currentLocation && (
           <div className="py-3">
@@ -70,7 +60,6 @@ const AddStopsStep = ({
             <button
               onClick={onAddStop}
               className="w-full bg-primary text-primary-foreground py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 hover:bg-primary/90 active:scale-95"
-              type="button"
             >
               <Plus className="h-4 w-4" />
               Add Stop

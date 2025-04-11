@@ -2,138 +2,191 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 210 25% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
- 
-    --primary: 142 69% 58%;
-    --primary-foreground: 355.7 100% 97.3%;
- 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
- 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
- 
-    --accent: 180 100% 50%;
-    --accent-foreground: 240 5.9% 10%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --card-foreground: 210 25% 20%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 142 69% 58%;
- 
-    --radius: 0.5rem;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 25% 20%;
+
+    --primary: 195 90% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 210 25% 20%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 205 70% 95%;
+    --accent-foreground: 195 90% 55%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 195 90% 55%;
+
+    --radius: 1rem;
   }
- 
+
   .dark {
-    --background: 20 14.3% 4.1%;
+    --background: 210 25% 10%;
     --foreground: 0 0% 95%;
- 
-    --card: 24 9.8% 10%;
+
+    --card: 210 25% 12%;
     --card-foreground: 0 0% 95%;
- 
-    --popover: 0 0% 9%;
+
+    --popover: 210 25% 10%;
     --popover-foreground: 0 0% 95%;
- 
-    --primary: 142 69% 58%;
-    --primary-foreground: 144.9 80.4% 10%;
- 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
- 
-    --muted: 0 0% 15%;
-    --muted-foreground: 240 5% 64.9%;
- 
-    --accent: 180 100% 50%;
-    --accent-foreground: 0 0% 9%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 85.7% 97.3%;
- 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 142 69% 58%;
+
+    --primary: 195 90% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 25% 15%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 210 25% 15%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 210 30% 20%;
+    --accent-foreground: 195 90% 55%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 210 25% 20%;
+    --input: 210 25% 20%;
+    --ring: 195 90% 55%;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans overflow-hidden;
+  }
+  
+  /* Improve touch targets for mobile */
+  @media (max-width: 768px) {
+    button, a, input[type="submit"] {
+      @apply min-h-9 min-w-9;
+    }
+    
+    input, select, textarea {
+      @apply text-base;
+    }
   }
 }
 
 @layer components {
   .glass-panel {
-    @apply bg-background/95 backdrop-blur-sm border rounded-lg shadow-sm;
+    @apply bg-white/70 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl shadow-lg;
   }
+  
+  .glass-button {
+    @apply bg-white/50 dark:bg-white/10 backdrop-blur-md border border-white/30 dark:border-white/10 
+    rounded-xl shadow-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-white/20 
+    active:scale-95 focus:ring-2 focus:ring-primary/50;
+  }
+  
+  .map-container {
+    @apply w-full h-full rounded-xl shadow-lg overflow-hidden border border-white/20;
+  }
+  
+  .list-card {
+    @apply glass-panel p-3 md:p-4 transition-all duration-300 hover:shadow-xl cursor-pointer;
+  }
+  
+  .route-date-chip {
+    @apply bg-primary/10 text-primary px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs font-medium;
+  }
+  
+  .route-chip {
+    @apply bg-accent text-accent-foreground px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs font-medium
+    transition-all duration-200 hover:bg-accent/80;
+  }
+  
+  .search-input {
+    @apply glass-panel w-full px-3 py-2 md:px-4 md:py-3 pr-10 text-sm transition-all duration-300
+    focus:ring-2 focus:ring-primary/50 focus:outline-none;
+  }
+}
 
+/* Map animations */
+.map-pin-drop {
+  animation: drop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: bottom center;
+}
+
+@keyframes drop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Route line animation */
+.route-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw-line 1.5s ease forwards;
+}
+
+@keyframes draw-line {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Page transitions */
+.page-enter {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.page-exit-active {
+  opacity: 0;
+  transform: scale(0.98);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .glass-panel {
+    @apply rounded-xl shadow-md;
+  }
+  
+  .route-line {
+    @apply stroke-[3];
+  }
+  
   .map-pin-drop {
-    animation: map-pin-drop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  }
-
-  .animate-bounce-slow {
-    animation: bounce 2s infinite;
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.3s ease-in-out;
-  }
-
-  .animate-scale-in {
-    animation: scale-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-}
-
-@keyframes map-pin-drop {
-  0% {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes scale-in {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
+    transform-origin: bottom center;
+    scale: 0.8;
   }
 }

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import Map from '@/components/Map';
 import { type Location } from '@/hooks/use-location-search';
@@ -15,19 +15,21 @@ const StartingPointStep = ({
   onLocationSelect,
   onAddStop
 }: StartingPointStepProps) => {
+  // Automatically add the starting point if a location is selected
+  useEffect(() => {
+    console.log("StartingPointStep - currentLocation:", currentLocation);
+  }, [currentLocation]);
+
   return (
-    <div className="animate-fade-in space-y-4">
-      <div className="h-[calc(100vh-360px)] min-h-[300px]">
-        <Map
-          onLocationSelect={(location) => {
-            console.log("StartingPointStep - location selected:", location);
-            onLocationSelect(location);
-          }}
-          interactive={true}
-          markers={currentLocation ? [currentLocation] : []}
-          className="h-full"
-        />
-      </div>
+    <div className="animate-fade-in h-[calc(100vh-320px)]">
+      <Map
+        onLocationSelect={(location) => {
+          console.log("StartingPointStep - location selected:", location);
+          onLocationSelect(location);
+        }}
+        interactive={true}
+        markers={currentLocation ? [currentLocation] : []}
+      />
       
       {currentLocation && (
         <div className="mt-4 p-4 glass-panel animate-scale-in">

@@ -40,15 +40,12 @@ const ReturnJourneyStep = ({
       </div>
       
       {returnJourney ? (
-        <div className="space-y-4">
-          <div className="h-[calc(100vh-360px)] min-h-[300px]">
-            <Map
-              onLocationSelect={onLocationSelect}
-              markers={lastStop ? [lastStop, ...returnStops] : returnStops}
-              interactive={true}
-              className="h-full"
-            />
-          </div>
+        <div className="h-[calc(100vh-360px)]">
+          <Map
+            onLocationSelect={onLocationSelect}
+            markers={lastStop ? [lastStop, ...returnStops] : returnStops}
+            interactive={true}
+          />
           
           <div className="mt-4 glass-panel p-4 divide-y divide-border">
             <h3 className="font-medium mb-2">Return Journey Stops</h3>
@@ -81,7 +78,6 @@ const ReturnJourneyStep = ({
                 <button
                   onClick={() => onRemoveStop(index)}
                   className="p-2 text-muted-foreground hover:text-destructive"
-                  aria-label="Remove stop"
                 >
                   <Trash className="h-4 w-4" />
                 </button>
@@ -95,7 +91,6 @@ const ReturnJourneyStep = ({
                 <button
                   onClick={onAddStop}
                   className="w-full bg-primary text-primary-foreground py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 hover:bg-primary/90 active:scale-95"
-                  type="button"
                 >
                   <Plus className="h-4 w-4" />
                   Add Return Stop

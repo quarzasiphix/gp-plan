@@ -1,8 +1,11 @@
 
-import React, { useState } from 'react';
-import { MapPin } from 'lucide-react';
-import { type Location } from '@/hooks/use-location-search';
+import React from 'react';
+import { toast } from '@/components/ui/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useLocationSearch, type Location } from '@/hooks/use-location-search';
 import MapSearchbar from './MapSearchbar';
+import MapMarkers from './MapMarkers';
+import MapRoute from './MapRoute';
 
 interface MapProps {
   onLocationSelect: (location: Location) => void;
@@ -12,6 +15,7 @@ interface MapProps {
   className?: string;
 }
 
+// Map component with enhanced functionality
 const Map = ({
   onLocationSelect,
   markers = [],
@@ -19,135 +23,134 @@ const Map = ({
   interactive = true,
   className = "",
 }: MapProps) => {
-  const [currentSearchLocation, setCurrentSearchLocation] = useState<Location | null>(null);
+  const isMobile = useIsMobile();
+  const {
+    searchTerm,
+    setSearchTerm,
+    searchResults,
+    isSearching,
+    currentLocation,
+    setCurrentLocation,
+    handleSelectSearchResult: handleSearchFromHook,
+  } = useLocationSearch();
+
+  // This is our local handler that uses the props
+  const handleMapSearchResult = (location: Location) => {
+    if (!location) return;
+    
+    console.log("Map search result selected:", location);
+    
+    // Set in the hook's state
+    setCurrentLocation(location);
+    
+    // Pass to parent component
+    if (onLocationSelect) {
+      onLocationSelect(location);
+    }
+    
+    toast({
+      title: "Location Selected",
+      description: `Selected: ${location.address}`,
+    });
+  };
 
   const handleMapClick = (e: React.MouseEvent) => {
-    if (!interactive) return;
+    if (!interactive || !onLocationSelect) return;
     
-    // Get click position
-    const mapContainer = e.currentTarget;
-    const rect = mapContainer.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    console.log('Map clicked');
     
-    // Calculate percentage positions
-    const percentX = (x / rect.width) * 100;
-    const percentY = (y / rect.height) * 100;
-    
-    // Dictionary of cities based on map regions (simplified)
-    const regions = [
-      { name: "Madrid", country: "Spain", lat: 40.4168, lng: -3.7038, x: 40, y: 50 },
-      { name: "Paris", country: "France", lat: 48.8566, lng: 2.3522, x: 45, y: 35 },
-      { name: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050, x: 55, y: 30 },
-      { name: "Rome", country: "Italy", lat: 41.9028, lng: 12.4964, x: 55, y: 55 },
-      { name: "London", country: "UK", lat: 51.5074, lng: -0.1278, x: 35, y: 30 },
-      { name: "Barcelona", country: "Spain", lat: 41.3851, lng: 2.1734, x: 45, y: 55 },
-      { name: "Amsterdam", country: "Netherlands", lat: 52.3676, lng: 4.9041, x: 48, y: 28 },
-      { name: "Prague", country: "Czech Republic", lat: 50.0755, lng: 14.4378, x: 60, y: 35 },
-      { name: "Vienna", country: "Austria", lat: 48.2082, lng: 16.3738, x: 60, y: 40 },
-      { name: "Warsaw", country: "Poland", lat: 52.2297, lng: 21.0122, x: 65, y: 30 },
+    // For demonstration, get a semi-random location, but ensure different locations on each click
+    const randomCities = [
+      { name: "Warsaw", country: "Poland", lat: 52.2297, lng: 21.0122 },
+      { name: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050 },
+      { name: "Paris", country: "France", lat: 48.8566, lng: 2.3522 },
+      { name: "Madrid", country: "Spain", lat: 40.4168, lng: -3.7038 },
+      { name: "Rome", country: "Italy", lat: 41.9028, lng: 12.4964 },
+      { name: "Vienna", country: "Austria", lat: 48.2082, lng: 16.3738 },
+      { name: "Prague", country: "Czech Republic", lat: 50.0755, lng: 14.4378 },
+      { name: "Amsterdam", country: "Netherlands", lat: 52.3676, lng: 4.9041 },
+      { name: "Brussels", country: "Belgium", lat: 50.8503, lng: 4.3517 },
+      { name: "Copenhagen", country: "Denmark", lat: 55.6761, lng: 12.5683 },
+      { name: "Helsinki", country: "Finland", lat: 60.1699, lng: 24.9384 },
     ];
     
-    // Find closest region to click
-    let closestRegion = regions[0];
-    let minDistance = 100000;
-    
-    for (const region of regions) {
-      const distance = Math.sqrt(
-        Math.pow(percentX - region.x, 2) + Math.pow(percentY - region.y, 2)
-      );
-      
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestRegion = region;
-      }
-    }
+    // Get a "random" city but use the click position to select it
+    // This ensures different clicks will select different cities
+    const clickX = e.clientX || 0;
+    const clickY = e.clientY || 0;
+    const cityIndex = (clickX + clickY) % randomCities.length;
+    const city = randomCities[cityIndex];
     
     // Add a small random variation to make it seem like a precise click
     const latVariation = (Math.random() - 0.5) * 0.1;
     const lngVariation = (Math.random() - 0.5) * 0.1;
     
     const mockLocation = {
-      address: `${closestRegion.name}, ${closestRegion.country}`,
-      lat: closestRegion.lat + latVariation,
-      lng: closestRegion.lng + lngVariation,
+      address: `${city.name}, ${city.country}`,
+      lat: city.lat + latVariation,
+      lng: city.lng + lngVariation,
     };
     
     console.log("Map click selected location:", mockLocation);
-    onLocationSelect(mockLocation);
-  };
-
-  const handleSearchResult = (location: Location) => {
-    console.log("Search result selected:", location);
-    setCurrentSearchLocation(null);
-    onLocationSelect(location);
-  };
-
-  // Render markers
-  const renderMarkers = () => {
-    if (!markers || markers.length === 0) return null;
     
-    return markers.map((marker, index) => (
-      <div 
-        key={`marker-${index}-${marker.lat}-${marker.lng}`}
-        className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300"
-        style={{ 
-          left: `${30 + (index * 10)}%`, 
-          top: `${40 + (index * 5)}%` 
-        }}
-      >
-        <div className="relative animate-bounce-slow">
-          <MapPin className="h-8 w-8 text-primary drop-shadow-lg" />
-          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-background text-xs p-1 rounded shadow-md whitespace-nowrap max-w-40 truncate">
-            {marker.address.split(',')[0]}
-          </div>
-        </div>
-      </div>
-    ));
+    // First set in the hook's state
+    setCurrentLocation(mockLocation);
+    
+    // Then pass to parent component
+    onLocationSelect(mockLocation);
+    
+    toast({
+      title: "Location Selected",
+      description: `Selected: ${mockLocation.address}`,
+    });
   };
+
+  // Determine which markers to show - either passed markers or current location
+  const displayMarkers = markers.length > 0 ? markers : (currentLocation ? [currentLocation] : []);
 
   return (
-    <div className={`relative ${className} w-full h-full min-h-[300px]`}>
+    <div className={`relative ${isMobile ? 'h-[70vh]' : 'h-full'} ${className}`}>
       {interactive && (
         <MapSearchbar
-          onSelectLocation={handleSearchResult}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          searchResults={searchResults}
+          isSearching={isSearching}
+          onSelectLocation={handleMapSearchResult}
         />
       )}
       
       <div 
-        className="map-container bg-accent/30 h-full w-full rounded-lg overflow-hidden mt-2"
+        className="map-container bg-accent/30 h-full rounded-lg overflow-hidden"
         onClick={handleMapClick}
       >
         {/* Map background and content */}
-        <div className="flex items-center justify-center h-full bg-[url('/lovable-uploads/ddd5eb8a-fb3c-48b1-bd26-8811fad4bfd2.png')] bg-cover bg-center relative">
-          <div className="absolute inset-0 bg-background/5"></div>
+        <div className="flex items-center justify-center h-full bg-[url('/lovable-uploads/35ae8898-e6d0-4a1c-a11e-0ee42bdcda81.png')] bg-cover bg-center relative">
+          <div className="absolute inset-0 bg-accent/10"></div>
           
           {/* User instructions */}
-          {interactive && markers.length === 0 && !currentSearchLocation && (
+          {interactive && !currentLocation && markers.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-background/70 text-foreground p-4 rounded-lg max-w-xs text-center shadow-lg">
+              <div className="bg-gray-500/70 text-white p-4 rounded-lg max-w-xs text-center">
                 <p>Click on the map to select a location or use the search bar above</p>
               </div>
             </div>
           )}
           
-          {/* Render markers */}
-          {renderMarkers()}
+          {/* Selected location marker */}
+          {currentLocation && markers.length === 0 && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="text-primary animate-pulse">
+                <span className="font-bold">Selected:</span> {currentLocation.address}
+              </div>
+            </div>
+          )}
           
-          {/* Render route line if needed */}
+          {/* Render markers and route */}
+          <MapMarkers markers={displayMarkers} />
+          
           {route && route.length > 1 && (
-            <svg className="absolute inset-0 w-full h-full pointer-events-none">
-              <path
-                d={`M${30 + (0 * 10)},${40 + (0 * 5)} ${markers.slice(1).map((_, i) => 
-                  `L${30 + ((i+1) * 10)},${40 + ((i+1) * 5)}`).join(' ')}`}
-                fill="none"
-                stroke="hsl(var(--primary))"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeDasharray="5,5"
-              />
-            </svg>
+            <MapRoute route={route} />
           )}
         </div>
       </div>
