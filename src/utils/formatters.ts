@@ -10,7 +10,7 @@ export const formatRouteData = (route: RouteData) => {
     startDate: route.start_date,
     duration: route.duration || '',
     distance: route.distance || '',
-    returnJourney: route.return_journey === true || route.return_journey === 1,
+    returnJourney: route.return_journey === true, // Fix the comparison
     stops: Array.isArray(route.stops) ? route.stops.map(stop => ({
       address: stop.address,
       lat: parseFloat(stop.lat),

@@ -26,9 +26,9 @@ const MapSearchbar = ({
   isSearching,
   onSelectLocation
 }: MapSearchbarProps) => {
-  // Ensure searchResults is always an array
+  // Ensure searchResults is always an array even if undefined is passed
   const results = Array.isArray(searchResults) ? searchResults : [];
-
+  
   return (
     <div className="absolute top-2 left-0 right-0 mx-auto w-[95%] max-w-md z-10">
       <Command key="command-search" className="rounded-lg border shadow-md">
