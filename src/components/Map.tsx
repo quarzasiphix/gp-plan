@@ -124,8 +124,8 @@ const Map = ({
         <MapSearchbar
           searchTerm={searchTerm || ''}
           setSearchTerm={setSearchTerm}
-          searchResults={searchResults || []}
-          isSearching={isSearching || false}
+          searchResults={Array.isArray(searchResults) ? searchResults : []}
+          isSearching={Boolean(isSearching)}
           onSelectLocation={handleMapSearchResult}
         />
       )}
