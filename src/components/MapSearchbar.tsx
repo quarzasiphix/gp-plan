@@ -37,17 +37,17 @@ const MapSearchbar = ({
           value={searchTerm || ''}
           onValueChange={(val) => setSearchTerm(val || '')}
         />
-        {results.length > 0 && (
+        {searchTerm && searchTerm.length > 0 && (
           <CommandList>
             {isSearching ? (
               <div className="p-2 text-center text-sm text-muted-foreground">
                 Searching...
               </div>
-            ) : (
+            ) : results.length > 0 ? (
               <CommandGroup heading="Results">
                 {results.map((location, index) => (
                   <CommandItem 
-                    key={index} 
+                    key={`location-${index}`}
                     onSelect={() => onSelectLocation(location)}
                     className="flex items-center cursor-pointer"
                   >
@@ -56,12 +56,9 @@ const MapSearchbar = ({
                   </CommandItem>
                 ))}
               </CommandGroup>
+            ) : (
+              <CommandEmpty>No results found</CommandEmpty>
             )}
-          </CommandList>
-        )}
-        {searchTerm && searchTerm.length > 2 && results.length === 0 && !isSearching && (
-          <CommandList>
-            <CommandEmpty>No results found</CommandEmpty>
           </CommandList>
         )}
       </Command>
