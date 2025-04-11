@@ -18,10 +18,12 @@ export function useLocationSearch() {
     // Search for locations when searchTerm changes
     if (searchTerm && searchTerm.length > 2) {
       setIsSearching(true);
+      console.log("Searching for:", searchTerm);
       // Simulate API delay
       const timeout = setTimeout(() => {
         const results = searchLocations(searchTerm);
-        setSearchResults(results || []);
+        console.log("Search results:", results);
+        setSearchResults(results);
         setIsSearching(false);
       }, 500);
       
@@ -71,7 +73,7 @@ export function useLocationSearch() {
   const handleSelectSearchResult = (location: Location | null) => {
     if (!location) return;
     
-    setSearchTerm(location.address || '');
+    setSearchTerm(location.address);
     setSearchResults([]);
     setCurrentLocation(location);
     

@@ -37,8 +37,8 @@ const MapSearchbar = ({
       <Command key={`command-search-${commandId}`} className="rounded-lg border shadow-md">
         <CommandInput
           placeholder="Search for a city..."
-          value={searchTerm || ''}
-          onValueChange={(val) => setSearchTerm(val || '')}
+          value={searchTerm}
+          onValueChange={(val) => setSearchTerm(val)}
         />
         {(searchTerm && searchTerm.length > 0) ? (
           <CommandList>
@@ -50,7 +50,7 @@ const MapSearchbar = ({
               <CommandGroup heading="Results">
                 {results.map((location, index) => (
                   <CommandItem 
-                    key={`location-${index}-${commandId}`}
+                    key={`location-${index}-${location.address}`}
                     onSelect={() => onSelectLocation(location)}
                     className="flex items-center cursor-pointer"
                   >
