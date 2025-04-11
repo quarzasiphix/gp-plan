@@ -32,6 +32,14 @@ const MapSearchbar = ({
   // Ensure searchResults is always an array even if undefined is passed
   const results = Array.isArray(searchResults) ? searchResults : [];
   
+  // Handle selection from search results
+  const handleSelect = (location: Location) => {
+    console.log("MapSearchbar - location selected:", location);
+    onSelectLocation(location);
+    // Clear search term after selection to close the results dropdown
+    setTimeout(() => setSearchTerm(''), 100);
+  };
+  
   return (
     <div className="absolute top-2 left-0 right-0 mx-auto w-[95%] max-w-md z-10">
       <Command key={`command-search-${commandId}`} className="rounded-lg border shadow-md">
@@ -43,7 +51,7 @@ const MapSearchbar = ({
             setSearchTerm(value);
           }}
         />
-        {searchTerm.length > 0 && (
+        {(searchTerm.length > 0 || results.length > 0) && (
           <CommandList>
             {isSearching ? (
               <div className="p-2 text-center text-sm text-muted-foreground">
@@ -54,10 +62,7 @@ const MapSearchbar = ({
                 {results.map((location, index) => (
                   <CommandItem 
                     key={`location-${index}-${location.lat}-${location.lng}`}
-                    onSelect={() => {
-                      console.log("Command item selected:", location);
-                      onSelectLocation(location);
-                    }}
+                    onSelect={() => handleSelect(location)}
                     className="flex items-center cursor-pointer"
                   >
                     <MapPin className="h-4 w-4 mr-2 text-primary" />

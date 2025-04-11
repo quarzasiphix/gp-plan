@@ -18,7 +18,12 @@ const StartingPointStep = ({
   // Automatically add the starting point if a location is selected
   useEffect(() => {
     console.log("StartingPointStep - currentLocation:", currentLocation);
-  }, [currentLocation]);
+    // If a location is selected, automatically add it as a stop
+    if (currentLocation) {
+      console.log("Auto-adding location as starting point");
+      onAddStop();
+    }
+  }, [currentLocation, onAddStop]);
 
   return (
     <div className="animate-fade-in h-[calc(100vh-320px)]">

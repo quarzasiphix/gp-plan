@@ -20,6 +20,12 @@ const NewRoute = () => {
   const handleSave = async (routeData: any) => {
     try {
       console.log('Creating new route with data:', routeData);
+      
+      // Validate routeData has required fields
+      if (!routeData.name || !routeData.stops || routeData.stops.length === 0) {
+        throw new Error("Route must have a name and at least one stop");
+      }
+      
       await createRoute(routeData);
       toast({
         title: "Success",

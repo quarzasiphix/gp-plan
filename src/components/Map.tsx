@@ -44,9 +44,7 @@ const Map = ({
     setCurrentLocation(location);
     
     // Pass to parent component
-    if (onLocationSelect) {
-      onLocationSelect(location);
-    }
+    onLocationSelect(location);
     
     toast({
       title: "Location Selected",
@@ -93,11 +91,11 @@ const Map = ({
     
     console.log("Map click selected location:", mockLocation);
     
-    // First set in the hook's state
-    setCurrentLocation(mockLocation);
-    
-    // Then pass to parent component
+    // Pass to parent component immediately
     onLocationSelect(mockLocation);
+    
+    // Also update the local state
+    setCurrentLocation(mockLocation);
     
     toast({
       title: "Location Selected",
@@ -125,7 +123,7 @@ const Map = ({
         onClick={handleMapClick}
       >
         {/* Map background and content */}
-        <div className="flex items-center justify-center h-full bg-[url('/lovable-uploads/35ae8898-e6d0-4a1c-a11e-0ee42bdcda81.png')] bg-cover bg-center relative">
+        <div className="flex items-center justify-center h-full bg-[url('/lovable-uploads/e2b12fc8-0ab8-4147-9e32-4f33a6cea67a.png')] bg-cover bg-center relative">
           <div className="absolute inset-0 bg-accent/10"></div>
           
           {/* User instructions */}
