@@ -11,9 +11,23 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
+// Define types for our tables to help with TypeScript errors
+export type RouteData = {
+  id?: string;
+  name: string;
+  start_date: string;
+  return_journey: boolean;
+  stops: any[]; // Using any for compatibility with existing code
+  return_stops: any[]; // Using any for compatibility with existing code 
+  duration?: string;
+  distance?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 // Helper functions for route data
 export const routesTable = {
-  getAll: async () => {
+  getAll: async (): Promise<RouteData[]> => {
     const { data, error } = await supabase
       .from('routes')
       .select('*');
@@ -22,7 +36,7 @@ export const routesTable = {
     return data || [];
   },
   
-  getById: async (id: string) => {
+  getById: async (id: string): Promise<RouteData> => {
     const { data, error } = await supabase
       .from('routes')
       .select('*')
@@ -33,7 +47,7 @@ export const routesTable = {
     return data;
   },
   
-  create: async (routeData: any) => {
+  create: async (routeData: Omit<RouteData, 'id' | 'created_at' | 'updated_at'>): Promise<RouteData> => {
     const { data, error } = await supabase
       .from('routes')
       .insert([routeData])
@@ -44,7 +58,7 @@ export const routesTable = {
     return data;
   },
   
-  update: async (id: string, routeData: any) => {
+  update: async (id: string, routeData: Partial<RouteData>): Promise<RouteData> => {
     const { data, error } = await supabase
       .from('routes')
       .update(routeData)
@@ -56,7 +70,7 @@ export const routesTable = {
     return data;
   },
   
-  delete: async (id: string) => {
+  delete: async (id: string): Promise<boolean> => {
     const { error } = await supabase
       .from('routes')
       .delete()

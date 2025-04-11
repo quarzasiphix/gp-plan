@@ -1,75 +1,52 @@
 
-// Data formatting utilities for the route API
+// Data formatting utilities for working with Supabase
 
-// Helper to format routes data for frontend use
+// Helper to format routes data from Supabase for frontend use
 export const formatRouteData = (route) => {
-  // Make sure the stops array exists
-  const stopsArray = Array.isArray(route.stops) ? route.stops : [];
-  
-  // Extract return journey stops if needed
-  const returnStops = stopsArray
-    .filter(stop => stop.is_return_journey === 1 || stop.is_return_journey === "1")
-    .sort((a, b) => a.stop_order - b.stop_order);
-  
-  // Extract regular stops
-  const regularStops = stopsArray
-    .filter(stop => stop.is_return_journey === 0 || stop.is_return_journey === "0")
-    .sort((a, b) => a.stop_order - b.stop_order);
-  
-  // Log what we're parsing to help with debugging
-  console.log(`Parsing route ${route.id}:`, {
-    totalStops: stopsArray.length,
-    regularStops: regularStops.length,
-    returnStops: returnStops.length
-  });
-  
+  // Create a structured object for the frontend
   return {
     id: route.id,
     name: route.name,
     startDate: route.start_date,
     duration: route.duration || '',
     distance: route.distance || '',
-    returnJourney: route.return_journey === 1 || route.return_journey === "1" || route.return_journey === true,
-    stops: regularStops.map(stop => ({
+    returnJourney: route.return_journey === true || route.return_journey === 1,
+    stops: Array.isArray(route.stops) ? route.stops.map(stop => ({
       address: stop.address,
       lat: parseFloat(stop.lat),
       lng: parseFloat(stop.lng)
-    })),
-    returnStops: returnStops.map(stop => ({
+    })) : [],
+    returnStops: Array.isArray(route.return_stops) ? route.return_stops.map(stop => ({
       address: stop.address,
       lat: parseFloat(stop.lat),
       lng: parseFloat(stop.lng)
-    }))
+    })) : []
   };
 };
 
-// Format data for API submission
+// Format data for Supabase API submission
 export const formatDataForApi = (routeData) => {
-  // Combine regular and return stops with proper flags
-  const allStops = [
-    ...routeData.stops.map((stop, index) => ({
-      address: stop.address,
-      lat: stop.lat,
-      lng: stop.lng,
-      stop_order: index + 1,
-      is_return_journey: 0
-    })),
-    ...(routeData.returnJourney ? routeData.returnStops.map((stop, index) => ({
-      address: stop.address,
-      lat: stop.lat,
-      lng: stop.lng,
-      stop_order: index + 1,
-      is_return_journey: 1
-    })) : [])
-  ];
+  // Ensure all stops have proper format
+  const processedStops = Array.isArray(routeData.stops) ? routeData.stops.map(stop => ({
+    address: stop.address,
+    lat: stop.lat,
+    lng: stop.lng
+  })) : [];
+  
+  const processedReturnStops = Array.isArray(routeData.returnStops) ? routeData.returnStops.map(stop => ({
+    address: stop.address,
+    lat: stop.lat,
+    lng: stop.lng
+  })) : [];
 
-  // PHP API expects return_journey as an integer (0 or 1)
+  // Prepare data for Supabase
   return {
     name: routeData.name,
     start_date: routeData.startDate,
-    duration: routeData.duration,
-    distance: routeData.distance,
-    return_journey: routeData.returnJourney ? 1 : 0,
-    stops: allStops
+    duration: routeData.duration || '',
+    distance: routeData.distance || '',
+    return_journey: routeData.returnJourney === true,
+    stops: processedStops,
+    return_stops: processedReturnStops
   };
 };

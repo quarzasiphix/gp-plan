@@ -1,6 +1,6 @@
 
-// Route API service
-import { fetchWithCORS, getApiUrl } from './apiUtils';
+// Route API service using Supabase backend
+import { routesTable, type RouteData } from '../integrations/supabase/client';
 import { formatRouteData, formatDataForApi } from './formatters';
 
 // API service with improved error handling
@@ -8,45 +8,14 @@ export const routeApi = {
   // Get all routes
   getRoutes: async () => {
     try {
-      console.log('Fetching routes from:', getApiUrl());
-      const response = await fetchWithCORS(getApiUrl(), {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      console.log('API Response Status:', response.status);
-      
-      const data = await response.json();
-      console.log('API Response Data:', data);
-      
-      // Check if the response is an array (expected)
-      if (!Array.isArray(data)) {
-        console.error('Unexpected API response format:', data);
-        if (data.error) {
-          throw new Error(`API Error: ${data.error}`);
-        }
-        throw new Error('Unexpected API response format');
-      }
+      console.log('Fetching routes from Supabase');
+      const data = await routesTable.getAll();
+      console.log('Routes fetched successfully:', data);
       
       // Convert each route to the format expected by the frontend
-      // Note: List endpoint doesn't include stops, so we need to fetch individual routes
-      const routesWithDetails = await Promise.all(
-        data.map(async (route) => {
-          try {
-            // For each route in the list, fetch its complete details including stops
-            return await routeApi.getRoute(route.id);
-          } catch (error) {
-            console.error(`Error fetching details for route ${route.id}:`, error);
-            // If we can't get details, use the basic info with empty stops
-            return formatRouteData({...route, stops: []});
-          }
-        })
-      );
+      const formattedRoutes = data.map(route => formatRouteData(route));
       
-      return routesWithDetails;
+      return formattedRoutes;
     } catch (error) {
       console.error('Error fetching routes:', error);
       throw error;
@@ -56,60 +25,20 @@ export const routeApi = {
   // Get route by ID
   getRoute: async (id) => {
     try {
-      // The API expects query parameter format ?id=X
-      console.log(`Fetching route ${id} from: ${getApiUrl(id)}`);
+      console.log(`Fetching route ${id} from Supabase`);
       
-      const response = await fetchWithCORS(getApiUrl(id), {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      console.log('Route API response status:', response.status);
-      const responseText = await response.text();
-      console.log('Raw API response text:', responseText);
-      
-      // Try to parse the response as JSON
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('Error parsing API response:', parseError);
-        
-        // Check if we're getting HTML instead of JSON (common error)
-        if (responseText.includes('<!DOCTYPE html>') || responseText.includes('<html')) {
-          throw new Error(`API returned HTML instead of JSON. This usually means the API endpoint URL is incorrect or the API is not responding properly.`);
-        }
-        
-        throw new Error(`API returned invalid JSON: ${responseText.substring(0, 100)}...`);
-      }
-      
-      console.log('Single route API response:', data);
-      
-      // Check if we received an array (old format) or an object (expected)
-      // Some APIs return an array with a single item when fetching by ID
-      if (Array.isArray(data)) {
-        console.log('Received array response for single route - extracting first item');
-        // Find the route with the matching ID if possible
-        const matchingRoute = data.find(route => route.id === id || route.id === parseInt(id));
-        if (matchingRoute) {
-          data = matchingRoute;
-        } else {
-          // Otherwise just take the first item
-          data = data[0];
-        }
-      }
-      
-      if (data.error) {
-        throw new Error(`API Error: ${data.error}`);
-      }
+      const data = await routesTable.getById(id);
+      console.log('Route fetched successfully:', data);
       
       // Ensure stops array exists
       if (!data.stops) {
         console.log('No stops data found in route, initializing with empty array');
         data.stops = [];
+      }
+      
+      if (!data.return_stops) {
+        console.log('No return stops data found in route, initializing with empty array');
+        data.return_stops = [];
       }
       
       return formatRouteData(data);
@@ -124,30 +53,11 @@ export const routeApi = {
     try {
       const formattedData = formatDataForApi(routeData);
       console.log('Creating route with data:', formattedData);
-      console.log('POST URL:', getApiUrl());
       
-      const response = await fetchWithCORS(getApiUrl(), {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formattedData),
-      });
+      const data = await routesTable.create(formattedData);
+      console.log('Route created successfully:', data);
       
-      const data = await response.json();
-      console.log('Create route response:', data);
-      
-      if (data.error) {
-        throw new Error(`API Error: ${data.error}`);
-      }
-      
-      // If we just get an ID back, fetch the complete route
-      if (data.id) {
-        return await routeApi.getRoute(data.id);
-      }
-      
-      return data;
+      return formatRouteData(data);
     } catch (error) {
       console.error('Error creating route:', error);
       throw error;
@@ -160,21 +70,8 @@ export const routeApi = {
       const formattedData = formatDataForApi(routeData);
       console.log(`Updating route ${id} with data:`, formattedData);
       
-      const response = await fetchWithCORS(getApiUrl(id), {
-        method: 'PUT',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formattedData),
-      });
-      
-      const data = await response.json();
-      console.log('Update route response:', data);
-      
-      if (data.error) {
-        throw new Error(`API Error: ${data.error}`);
-      }
+      const data = await routesTable.update(id, formattedData);
+      console.log('Route updated successfully:', data);
       
       return formatRouteData(data);
     } catch (error) {
@@ -187,21 +84,10 @@ export const routeApi = {
   deleteRoute: async (id) => {
     try {
       console.log(`Deleting route ${id}`);
-      const response = await fetchWithCORS(getApiUrl(id), {
-        method: 'DELETE',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-      });
+      await routesTable.delete(id);
+      console.log(`Route ${id} deleted successfully`);
       
-      const data = await response.json();
-      
-      if (data.error) {
-        throw new Error(`API Error: ${data.error}`);
-      }
-      
-      return data;
+      return true;
     } catch (error) {
       console.error(`Error deleting route ${id}:`, error);
       throw error;
