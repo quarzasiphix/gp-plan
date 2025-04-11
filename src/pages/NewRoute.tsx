@@ -17,7 +17,7 @@ const NewRoute = () => {
     };
   }, []);
   
-  const handleSave = async (routeData) => {
+  const handleSave = async (routeData: any) => {
     try {
       console.log('Creating new route with data:', routeData);
       await createRoute(routeData);

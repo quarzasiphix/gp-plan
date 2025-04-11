@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import Map from '@/components/Map';
 import { type Location } from '@/hooks/use-location-search';
@@ -15,10 +15,18 @@ const StartingPointStep = ({
   onLocationSelect,
   onAddStop
 }: StartingPointStepProps) => {
+  // Automatically add the starting point if a location is selected
+  useEffect(() => {
+    console.log("StartingPointStep - currentLocation:", currentLocation);
+  }, [currentLocation]);
+
   return (
     <div className="animate-fade-in h-[calc(100vh-320px)]">
       <Map
-        onLocationSelect={onLocationSelect}
+        onLocationSelect={(location) => {
+          console.log("StartingPointStep - location selected:", location);
+          onLocationSelect(location);
+        }}
         interactive={true}
         markers={currentLocation ? [currentLocation] : []}
       />
@@ -28,7 +36,10 @@ const StartingPointStep = ({
           <h3 className="font-medium">Selected Location</h3>
           <p className="text-sm text-muted-foreground mb-3">{currentLocation.address}</p>
           <button
-            onClick={onAddStop}
+            onClick={() => {
+              console.log("Set as Starting Point clicked");
+              onAddStop();
+            }}
             className="w-full bg-primary text-primary-foreground py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 hover:bg-primary/90 active:scale-95"
             type="button"
           >
