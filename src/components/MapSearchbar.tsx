@@ -38,9 +38,9 @@ const MapSearchbar = ({
         <CommandInput
           placeholder="Search for a city..."
           value={searchTerm}
-          onValueChange={(val) => setSearchTerm(val)}
+          onValueChange={setSearchTerm}
         />
-        {(searchTerm && searchTerm.length > 0) ? (
+        {searchTerm && searchTerm.length > 0 && (
           <CommandList>
             {isSearching ? (
               <div className="p-2 text-center text-sm text-muted-foreground">
@@ -63,7 +63,7 @@ const MapSearchbar = ({
               <CommandEmpty>No results found</CommandEmpty>
             )}
           </CommandList>
-        ) : null}
+        )}
       </Command>
     </div>
   );

@@ -45,34 +45,6 @@ const Map = ({
     }
   };
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('Searching for location:', searchTerm);
-    
-    if (!searchTerm) {
-      toast({
-        title: "Search Error",
-        description: "Please enter a location to search",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // For now, let's use a more realistic mock search result based on the search term
-    if (searchTerm && onLocationSelect) {
-      // Generate a mock location based on the search term
-      const mockLocation = generateMockLocation(searchTerm);
-      if (mockLocation) {
-        onLocationSelect(mockLocation);
-        
-        toast({
-          title: "Location Found",
-          description: `Found: ${mockLocation.address}`,
-        });
-      }
-    }
-  };
-
   const handleMapClick = (e: React.MouseEvent) => {
     if (!interactive || !onLocationSelect) return;
     
@@ -122,10 +94,10 @@ const Map = ({
     <div className={`relative ${isMobile ? 'h-[70vh]' : 'h-full'} ${className}`}>
       {interactive && (
         <MapSearchbar
-          searchTerm={searchTerm || ''}
+          searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          searchResults={Array.isArray(searchResults) ? searchResults : []}
-          isSearching={Boolean(isSearching)}
+          searchResults={searchResults}
+          isSearching={isSearching}
           onSelectLocation={handleMapSearchResult}
         />
       )}
@@ -134,7 +106,7 @@ const Map = ({
         className="map-container bg-accent/30 h-full rounded-lg overflow-hidden"
         onClick={handleMapClick}
       >
-        {/* This is a placeholder for the actual map */}
+        {/* Map background and content */}
         <div className="flex items-center justify-center h-full bg-[url('/lovable-uploads/35ae8898-e6d0-4a1c-a11e-0ee42bdcda81.png')] bg-cover bg-center relative">
           <div className="absolute inset-0 bg-accent/10"></div>
           
