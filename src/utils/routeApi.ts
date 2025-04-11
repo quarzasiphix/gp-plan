@@ -1,6 +1,6 @@
 
 // Route API service using Supabase backend
-import { routesTable, type RouteData } from '../integrations/supabase/client';
+import { routesTable } from '../integrations/supabase/client';
 import { formatRouteData, formatDataForApi } from './formatters';
 
 // API service with improved error handling

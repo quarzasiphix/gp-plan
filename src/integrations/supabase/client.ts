@@ -12,18 +12,9 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 // Define types for our tables to help with TypeScript errors
-export type RouteData = {
-  id?: string;
-  name: string;
-  start_date: string;
-  return_journey: boolean;
-  stops: any[]; // Using any for compatibility with existing code
-  return_stops: any[]; // Using any for compatibility with existing code 
-  duration?: string;
-  distance?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+export type RouteData = Database['public']['Tables']['routes']['Row'];
+export type RouteInsert = Database['public']['Tables']['routes']['Insert'];
+export type RouteUpdate = Database['public']['Tables']['routes']['Update'];
 
 // Helper functions for route data
 export const routesTable = {
@@ -47,7 +38,7 @@ export const routesTable = {
     return data;
   },
   
-  create: async (routeData: Omit<RouteData, 'id' | 'created_at' | 'updated_at'>): Promise<RouteData> => {
+  create: async (routeData: RouteInsert): Promise<RouteData> => {
     const { data, error } = await supabase
       .from('routes')
       .insert([routeData])
@@ -58,7 +49,7 @@ export const routesTable = {
     return data;
   },
   
-  update: async (id: string, routeData: Partial<RouteData>): Promise<RouteData> => {
+  update: async (id: string, routeData: RouteUpdate): Promise<RouteData> => {
     const { data, error } = await supabase
       .from('routes')
       .update(routeData)

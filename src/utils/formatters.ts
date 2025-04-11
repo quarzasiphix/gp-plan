@@ -1,8 +1,8 @@
 
-// Data formatting utilities for working with Supabase
+import { RouteData, RouteInsert, RouteUpdate } from '@/integrations/supabase/client';
 
 // Helper to format routes data from Supabase for frontend use
-export const formatRouteData = (route) => {
+export const formatRouteData = (route: RouteData) => {
   // Create a structured object for the frontend
   return {
     id: route.id,
@@ -25,7 +25,7 @@ export const formatRouteData = (route) => {
 };
 
 // Format data for Supabase API submission
-export const formatDataForApi = (routeData) => {
+export const formatDataForApi = (routeData: any): RouteInsert => {
   // Ensure all stops have proper format
   const processedStops = Array.isArray(routeData.stops) ? routeData.stops.map(stop => ({
     address: stop.address,

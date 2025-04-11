@@ -9,7 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      routes: {
+        Row: {
+          created_at: string | null
+          distance: string | null
+          duration: string | null
+          id: string
+          name: string
+          return_journey: boolean | null
+          return_stops: Json | null
+          start_date: string
+          stops: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          distance?: string | null
+          duration?: string | null
+          id?: string
+          name: string
+          return_journey?: boolean | null
+          return_stops?: Json | null
+          start_date: string
+          stops?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          distance?: string | null
+          duration?: string | null
+          id?: string
+          name?: string
+          return_journey?: boolean | null
+          return_stops?: Json | null
+          start_date?: string
+          stops?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
