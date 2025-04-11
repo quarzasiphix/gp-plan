@@ -12,9 +12,38 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 // Define types for our tables to help with TypeScript errors
-export type RouteData = Database['public']['Tables']['routes']['Row'];
-export type RouteInsert = Database['public']['Tables']['routes']['Insert'];
-export type RouteUpdate = Database['public']['Tables']['routes']['Update'];
+export type RouteData = {
+  id: string;
+  name: string;
+  start_date: string;
+  return_journey: boolean | null;
+  stops: any; // Using any for compatibility with existing code
+  return_stops: any; // Using any for compatibility with existing code 
+  duration: string | null;
+  distance: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export type RouteInsert = {
+  name: string;
+  start_date: string;
+  return_journey?: boolean | null;
+  stops?: any;
+  return_stops?: any;
+  duration?: string | null;
+  distance?: string | null;
+}
+
+export type RouteUpdate = {
+  name?: string;
+  start_date?: string;
+  return_journey?: boolean | null;
+  stops?: any;
+  return_stops?: any;
+  duration?: string | null;
+  distance?: string | null;
+}
 
 // Helper functions for route data
 export const routesTable = {
