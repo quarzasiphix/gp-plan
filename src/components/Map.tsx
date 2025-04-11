@@ -122,10 +122,10 @@ const Map = ({
     <div className={`relative ${isMobile ? 'h-[70vh]' : 'h-full'} ${className}`}>
       {interactive && (
         <MapSearchbar
-          searchTerm={searchTerm}
+          searchTerm={searchTerm || ''}
           setSearchTerm={setSearchTerm}
-          searchResults={searchResults || []} // Ensure we pass an array, not undefined
-          isSearching={isSearching}
+          searchResults={searchResults || []}
+          isSearching={isSearching || false}
           onSelectLocation={handleMapSearchResult}
         />
       )}

@@ -28,6 +28,7 @@ export function useLocationSearch() {
       return () => clearTimeout(timeout);
     } else {
       setSearchResults([]);
+      setIsSearching(false);
     }
   }, [searchTerm]);
 

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useId } from 'react';
 import { MapPin } from 'lucide-react';
 import { 
   Command,
@@ -26,12 +26,15 @@ const MapSearchbar = ({
   isSearching,
   onSelectLocation
 }: MapSearchbarProps) => {
+  // Create a stable ID for the Command component
+  const commandId = useId();
+  
   // Ensure searchResults is always an array even if undefined is passed
   const results = Array.isArray(searchResults) ? searchResults : [];
   
   return (
     <div className="absolute top-2 left-0 right-0 mx-auto w-[95%] max-w-md z-10">
-      <Command key="command-search" className="rounded-lg border shadow-md">
+      <Command key={`command-search-${commandId}`} className="rounded-lg border shadow-md">
         <CommandInput
           placeholder="Search for a city..."
           value={searchTerm || ''}
@@ -47,7 +50,7 @@ const MapSearchbar = ({
               <CommandGroup heading="Results">
                 {results.map((location, index) => (
                   <CommandItem 
-                    key={`location-${index}`}
+                    key={`location-${index}-${commandId}`}
                     onSelect={() => onSelectLocation(location)}
                     className="flex items-center cursor-pointer"
                   >
