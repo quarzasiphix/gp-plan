@@ -38,10 +38,7 @@ const MapSearchbar = ({
         <CommandInput
           placeholder="Search for a location..."
           value={searchTerm}
-          onValueChange={(value) => {
-            console.log("Search input changed:", value);
-            setSearchTerm(value);
-          }}
+          onValueChange={setSearchTerm}
         />
         {searchTerm.length > 0 && (
           <CommandList>
@@ -54,10 +51,7 @@ const MapSearchbar = ({
                 {results.map((location, index) => (
                   <CommandItem 
                     key={`location-${index}-${location.lat}-${location.lng}`}
-                    onSelect={() => {
-                      console.log("Command item selected:", location);
-                      onSelectLocation(location);
-                    }}
+                    onSelect={() => onSelectLocation(location)}
                     className="flex items-center cursor-pointer"
                   >
                     <MapPin className="h-4 w-4 mr-2 text-primary" />

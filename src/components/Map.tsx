@@ -38,8 +38,6 @@ const Map = ({
   const handleMapSearchResult = (location: Location) => {
     if (!location) return;
     
-    console.log("Map search result selected:", location);
-    
     // Set in the hook's state
     setCurrentLocation(location);
     
@@ -90,8 +88,6 @@ const Map = ({
       lat: city.lat + latVariation,
       lng: city.lng + lngVariation,
     };
-    
-    console.log("Map click selected location:", mockLocation);
     
     // First set in the hook's state
     setCurrentLocation(mockLocation);
@@ -148,10 +144,7 @@ const Map = ({
           
           {/* Render markers and route */}
           <MapMarkers markers={displayMarkers} />
-          
-          {route && route.length > 1 && (
-            <MapRoute route={route} />
-          )}
+          <MapRoute route={route} />
         </div>
       </div>
     </div>

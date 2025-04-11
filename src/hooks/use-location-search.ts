@@ -55,15 +55,13 @@ export function useLocationSearch() {
       'copenhagen': { lat: 55.6761, lng: 12.5683, country: 'Denmark' },
     };
     
-    term = term.toLowerCase().trim();
-    
-    // First check for exact matches
+    // Now we'll make the search much more permissive
+    const searchLower = term.toLowerCase();
     const results: Location[] = [];
     
-    // Making search much more permissive to ensure we find matches
+    // Check for partial matches in city names
     Object.entries(cities).forEach(([city, data]) => {
-      // Check if city name contains our search term OR search term contains city name
-      if (city.includes(term) || term.includes(city)) {
+      if (city.includes(searchLower) || searchLower.includes(city)) {
         results.push({
           address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
           lat: data.lat,
@@ -72,54 +70,20 @@ export function useLocationSearch() {
       }
     });
     
-    // If no exact matches, try more permissive search
+    // If we still don't have results, check if the search term contains any part of city names
     if (results.length === 0) {
       Object.entries(cities).forEach(([city, data]) => {
-        // Try to match any part of search to any part of city name
-        const parts = city.split(' ');
-        const searchParts = term.split(' ');
-        
-        let matched = false;
-        for (const part of parts) {
-          if (part.length <= 2) continue; // Skip very short parts
-          
-          for (const searchPart of searchParts) {
-            if (searchPart.length <= 2) continue; // Skip very short search parts
-            
-            if (part.includes(searchPart) || searchPart.includes(part)) {
-              matched = true;
-              break;
-            }
+        for (const part of city.split(' ')) {
+          if (part.length > 2 && (searchLower.includes(part) || part.includes(searchLower))) {
+            results.push({
+              address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
+              lat: data.lat,
+              lng: data.lng
+            });
+            break;
           }
-          
-          if (matched) break;
-        }
-        
-        if (matched) {
-          results.push({
-            address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
-            lat: data.lat,
-            lng: data.lng
-          });
         }
       });
-    }
-    
-    // If still no results, include something to make the UX better
-    if (results.length === 0 && term.length >= 3) {
-      // Find a city starting with the same first letter as search term
-      const firstChar = term.charAt(0);
-      
-      for (const [city, data] of Object.entries(cities)) {
-        if (city.charAt(0) === firstChar) {
-          results.push({
-            address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
-            lat: data.lat,
-            lng: data.lng
-          });
-          break;
-        }
-      }
     }
     
     console.log(`Search for "${term}" returned ${results.length} results`);
@@ -129,7 +93,6 @@ export function useLocationSearch() {
   const handleSelectSearchResult = (location: Location) => {
     if (!location) return;
     
-    console.log("Selected location:", location);
     setSearchTerm(location.address);
     setSearchResults([]);
     setCurrentLocation(location);
