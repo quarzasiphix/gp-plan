@@ -32,7 +32,6 @@ const Map = ({
     currentLocation,
     setCurrentLocation,
     handleSelectSearchResult: handleSearchFromHook,
-    generateMockLocation
   } = useLocationSearch();
 
   // This is our local handler that uses the props
@@ -102,6 +101,9 @@ const Map = ({
     });
   };
 
+  // Determine which markers to show - either passed markers or current location
+  const displayMarkers = markers.length > 0 ? markers : (currentLocation ? [currentLocation] : []);
+
   return (
     <div className={`relative ${isMobile ? 'h-[70vh]' : 'h-full'} ${className}`}>
       {interactive && (
@@ -123,7 +125,7 @@ const Map = ({
           <div className="absolute inset-0 bg-accent/10"></div>
           
           {/* User instructions */}
-          {interactive && !currentLocation && (
+          {interactive && !currentLocation && markers.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="bg-gray-500/70 text-white p-4 rounded-lg max-w-xs text-center">
                 <p>Click on the map to select a location or use the search bar above</p>
@@ -132,7 +134,7 @@ const Map = ({
           )}
           
           {/* Selected location marker */}
-          {currentLocation && (
+          {currentLocation && markers.length === 0 && (
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <div className="text-primary animate-pulse">
                 <span className="font-bold">Selected:</span> {currentLocation.address}
@@ -141,7 +143,7 @@ const Map = ({
           )}
           
           {/* Render markers and route */}
-          <MapMarkers markers={markers.length > 0 ? markers : (currentLocation ? [currentLocation] : [])} />
+          <MapMarkers markers={displayMarkers} />
           <MapRoute route={route} />
         </div>
       </div>

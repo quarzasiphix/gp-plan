@@ -16,7 +16,7 @@ export function useLocationSearch() {
 
   useEffect(() => {
     // Search for locations when searchTerm changes
-    if (searchTerm && searchTerm.length > 2) {
+    if (searchTerm && searchTerm.length > 1) {
       setIsSearching(true);
       console.log("Searching for:", searchTerm);
       // Simulate API delay
@@ -25,7 +25,7 @@ export function useLocationSearch() {
         console.log("Search results:", results);
         setSearchResults(results);
         setIsSearching(false);
-      }, 500);
+      }, 300);
       
       return () => clearTimeout(timeout);
     } else {
@@ -51,15 +51,17 @@ export function useLocationSearch() {
       'prague': { lat: 50.0755, lng: 14.4378, country: 'Czech Republic' },
       'barcelona': { lat: 41.3851, lng: 2.1734, country: 'Spain' },
       'lodz': { lat: 51.7592, lng: 19.4560, country: 'Poland' },
+      'helsinki': { lat: 60.1699, lng: 24.9384, country: 'Finland' },
+      'copenhagen': { lat: 55.6761, lng: 12.5683, country: 'Denmark' },
     };
     
-    // Filter cities based on the search term (case insensitive)
+    // Now we'll make the search much more permissive
     const searchLower = term.toLowerCase();
     const results: Location[] = [];
     
+    // Check for partial matches in city names
     Object.entries(cities).forEach(([city, data]) => {
-      // Make search more permissive - check if the city name contains the search term
-      if (city.includes(searchLower)) {
+      if (city.includes(searchLower) || searchLower.includes(city)) {
         results.push({
           address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
           lat: data.lat,
@@ -68,6 +70,23 @@ export function useLocationSearch() {
       }
     });
     
+    // If we still don't have results, check if the search term contains any part of city names
+    if (results.length === 0) {
+      Object.entries(cities).forEach(([city, data]) => {
+        for (const part of city.split(' ')) {
+          if (part.length > 2 && (searchLower.includes(part) || part.includes(searchLower))) {
+            results.push({
+              address: `${city.charAt(0).toUpperCase() + city.slice(1)}, ${data.country}`,
+              lat: data.lat,
+              lng: data.lng
+            });
+            break;
+          }
+        }
+      });
+    }
+    
+    console.log(`Search for "${term}" returned ${results.length} results`);
     return results;
   };
 
