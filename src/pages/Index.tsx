@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Calendar, Plus, ArrowRight } from 'lucide-react';
@@ -35,7 +36,7 @@ const Index = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">PetWay Planner</h1>
+        <h1 className="text-3xl font-bold mb-2">GlobalPet Planner</h1>
         <p className="text-muted-foreground">Plan and manage your pet transportation routes</p>
       </div>
       

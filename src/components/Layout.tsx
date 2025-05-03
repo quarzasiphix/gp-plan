@@ -23,7 +23,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center group-hover:scale-105 transition-all">
             <MapPin className="text-white h-4 w-4" />
           </div>
-          <h1 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold group-hover:text-primary transition-colors`}>PetWay</h1>
+          <h1 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold group-hover:text-primary transition-colors`}>GlobalPet</h1>
         </Link>
         
         {/* Desktop Navigation */}

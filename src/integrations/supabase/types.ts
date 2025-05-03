@@ -14,9 +14,18 @@ export type Database = {
           created_at: string | null
           distance: string | null
           duration: string | null
+          end_date: string | null
+          estimated_trip_seconds: number | null
           id: string
+          legs: Json | null
           name: string
+          number_of_days: number | null
+          outward_directions_result: Json | null
+          return_directions_result: Json | null
+          return_distance: string | null
+          return_duration: string | null
           return_journey: boolean | null
+          return_legs: Json | null
           return_stops: Json | null
           start_date: string
           stops: Json | null
@@ -26,9 +35,18 @@ export type Database = {
           created_at?: string | null
           distance?: string | null
           duration?: string | null
+          end_date?: string | null
+          estimated_trip_seconds?: number | null
           id?: string
+          legs?: Json | null
           name: string
+          number_of_days?: number | null
+          outward_directions_result?: Json | null
+          return_directions_result?: Json | null
+          return_distance?: string | null
+          return_duration?: string | null
           return_journey?: boolean | null
+          return_legs?: Json | null
           return_stops?: Json | null
           start_date: string
           stops?: Json | null
@@ -38,9 +56,18 @@ export type Database = {
           created_at?: string | null
           distance?: string | null
           duration?: string | null
+          end_date?: string | null
+          estimated_trip_seconds?: number | null
           id?: string
+          legs?: Json | null
           name?: string
+          number_of_days?: number | null
+          outward_directions_result?: Json | null
+          return_directions_result?: Json | null
+          return_distance?: string | null
+          return_duration?: string | null
           return_journey?: boolean | null
+          return_legs?: Json | null
           return_stops?: Json | null
           start_date?: string
           stops?: Json | null
